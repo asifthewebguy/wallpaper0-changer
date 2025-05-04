@@ -54,12 +54,19 @@ python main.py
 
 The application supports a custom URL protocol that allows you to change the wallpaper directly from a link:
 
-1. First, run the `install_protocol.bat` script to register the URL protocol
+1. First, register the URL protocol:
+   - During installation when prompted, or
+   - Import the `wallpaper_protocol.reg` file (requires administrator privileges)
+   - Or run `run_protocol_register.bat` as administrator
+
 2. Then you can use links like `wallpaper0-changer:UQ0VJ5GNQ1.jpg` to set a specific wallpaper
+
 3. You can create these links in:
    - HTML documents: `<a href="wallpaper0-changer:UQ0VJ5GNQ1.jpg">Set Wallpaper</a>`
    - Desktop shortcuts
    - Other applications
+
+4. Test the functionality by opening `test_protocol.html` in your browser
 
 This feature allows you to quickly set wallpapers without opening the full application.
 

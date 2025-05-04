@@ -22,7 +22,11 @@ echo.
 :: Ask if user wants to register the URL protocol
 set /p register_protocol="Do you want to register the URL protocol for direct wallpaper links? (y/n): "
 if /i "%register_protocol%"=="y" (
-    call install_protocol.bat
+    echo.
+    echo To register the URL protocol, you need administrator privileges.
+    echo The registry file will be opened for you to import.
+    echo.
+    start wallpaper_protocol.reg
 )
 
 :: Ask if user wants to run the application now

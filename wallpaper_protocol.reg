@@ -4,9 +4,12 @@ Windows Registry Editor Version 5.00
 @="URL:Wallpaper Changer Protocol"
 "URL Protocol"=""
 
+[HKEY_CLASSES_ROOT\wallpaper0-changer\DefaultIcon]
+@="E:\\git-hub-projects\\wallpaper0-changer\\run.bat,0"
+
 [HKEY_CLASSES_ROOT\wallpaper0-changer\shell]
 
 [HKEY_CLASSES_ROOT\wallpaper0-changer\shell\open]
 
 [HKEY_CLASSES_ROOT\wallpaper0-changer\shell\open\command]
-@="\"C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe\" -ExecutionPolicy Bypass -Command \"cd '%~dp0'; python main.py '%1'\""
+@="cmd.exe /c \"cd /d \"E:\\git-hub-projects\\wallpaper0-changer\" && python main.py \"%1\"\""

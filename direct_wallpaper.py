@@ -3,6 +3,7 @@ import re
 import sys
 import os
 import traceback
+import datetime
 from api_client import WallpaperAPIClient
 from wallpaper_manager import WallpaperManager, WallpaperStyle
 
@@ -30,16 +31,28 @@ def extract_image_id_from_url(url):
     if not url:
         return None
 
+    logger.info(f"Original URL: {url}")
+
     # Remove protocol prefix
-    if url.startswith("wallpaper0-changer:"):
-        url = url[len("wallpaper0-changer:"):]
+    if "wallpaper0-changer:" in url:
+        # Find the position of the protocol
+        protocol_pos = url.find("wallpaper0-changer:")
+        # Extract everything after the protocol
+        url = url[protocol_pos + len("wallpaper0-changer:"):]
 
     # Clean up any remaining special characters
     image_id = url.strip()
 
+    # Remove any URL encoding or extra characters
+    image_id = image_id.replace("%20", " ")
+    image_id = re.sub(r'["\']', '', image_id)
+
+    logger.info(f"Cleaned URL: {image_id}")
+
     # If there's no file extension, try to add .jpg as a default
     if not re.search(r'\.(jpg|png|jpeg)$', image_id, re.IGNORECASE):
         image_id += ".jpg"
+        logger.info(f"Added extension: {image_id}")
 
     return image_id if image_id else None
 
@@ -102,6 +115,12 @@ def process_url_command(url):
         bool: True if successful, False otherwise
     """
     try:
+        # Create a log file specifically for URL protocol debugging
+        with open("url_protocol.log", "a") as log_file:
+            log_file.write(f"{'-'*50}\n")
+            log_file.write(f"Timestamp: {datetime.datetime.now()}\n")
+            log_file.write(f"Processing URL command: {url}\n")
+
         # Log the URL being processed
         logger.info(f"Processing URL command: {url}")
 
@@ -109,17 +128,25 @@ def process_url_command(url):
         image_id = extract_image_id_from_url(url)
         if not image_id:
             logger.error(f"Invalid URL format: {url}")
+            with open("url_protocol.log", "a") as log_file:
+                log_file.write(f"Invalid URL format: {url}\n")
             return False
 
         logger.info(f"Extracted image ID: {image_id}")
+        with open("url_protocol.log", "a") as log_file:
+            log_file.write(f"Extracted image ID: {image_id}\n")
 
         # Set the wallpaper
         success = set_wallpaper_by_id(image_id)
 
         if success:
             logger.info(f"Successfully set wallpaper from URL command: {url}")
+            with open("url_protocol.log", "a") as log_file:
+                log_file.write(f"Successfully set wallpaper with ID: {image_id}\n")
         else:
             logger.error(f"Failed to set wallpaper from URL command: {url}")
+            with open("url_protocol.log", "a") as log_file:
+                log_file.write(f"Failed to set wallpaper with ID: {image_id}\n")
 
         return success
 
@@ -129,4 +156,11 @@ def process_url_command(url):
         logger.error(f"Error processing URL command: {url}")
         logger.error(f"Exception: {str(e)}")
         logger.error(f"Traceback: {error_details}")
+
+        # Write to the URL protocol log file
+        with open("url_protocol.log", "a") as log_file:
+            log_file.write(f"Error processing URL command: {url}\n")
+            log_file.write(f"Exception: {str(e)}\n")
+            log_file.write(f"Traceback: {error_details}\n")
+
         return False
