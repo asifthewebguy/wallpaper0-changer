@@ -59,7 +59,13 @@ class WallpaperApp(tk.Tk):
         refresh_button.pack(side=tk.LEFT, padx=(0, 5))
 
         compress_button = ttk.Button(controls_frame, text="Compress Thumbnails", command=self.compress_thumbnails)
-        compress_button.pack(side=tk.LEFT)
+        compress_button.pack(side=tk.LEFT, padx=(0, 5))
+
+        cache_stats_button = ttk.Button(controls_frame, text="Cache Stats", command=self.show_cache_stats)
+        cache_stats_button.pack(side=tk.LEFT, padx=(0, 5))
+
+        clear_cache_button = ttk.Button(controls_frame, text="Clear Cache", command=self.clear_cache)
+        clear_cache_button.pack(side=tk.LEFT)
 
         # Style selection
         style_frame = ttk.LabelFrame(controls_frame, text="Wallpaper Style")
@@ -469,6 +475,72 @@ class WallpaperApp(tk.Tk):
                 f"Error compressing thumbnails: {str(e)}"
             ))
 
+    def show_cache_stats(self):
+        """Show cache statistics."""
+        try:
+            # Get cache statistics
+            stats = self.api_client.get_cache_stats()
+
+            if not stats:
+                messagebox.showinfo("Cache Statistics", "No cache statistics available.")
+                return
+
+            # Format statistics for display
+            total_size_mb = stats.get('total_size_mb', 0)
+            max_size_mb = stats.get('max_size_mb', 0)
+            image_count = stats.get('image_count', 0)
+            thumbnail_count = stats.get('thumbnail_count', 0)
+            total_items = stats.get('total_items', 0)
+
+            # Create message
+            message = f"""Cache Statistics:
+
+Total Size: {total_size_mb:.2f} MB / {max_size_mb:.2f} MB ({(total_size_mb/max_size_mb*100) if max_size_mb else 0:.1f}%)
+Total Items: {total_items}
+Images: {image_count}
+Thumbnails: {thumbnail_count}
+            """
+
+            # Show in a message box
+            messagebox.showinfo("Cache Statistics", message)
+
+            # Update status
+            self.status_var.set(f"Cache: {total_size_mb:.2f}MB, {total_items} items")
+
+        except Exception as e:
+            logger.error(f"Error showing cache statistics: {e}")
+            messagebox.showerror("Error", f"Error showing cache statistics: {str(e)}")
+
+    def clear_cache(self):
+        """Clear all cached images and thumbnails."""
+        # Show confirmation dialog
+        if not messagebox.askyesno(
+            "Clear Cache",
+            "This will delete all cached images and thumbnails. You will need to download them again. Continue?"
+        ):
+            return
+
+        try:
+            # Clear the cache
+            self.api_client.clear_cache()
+
+            # Clear local references
+            self.image_details_cache = {}
+            self.thumbnail_images = {}
+
+            # Update status
+            self.status_var.set("Cache cleared successfully")
+
+            # Show confirmation
+            messagebox.showinfo("Cache Cleared", "All cached images and thumbnails have been deleted.")
+
+            # Reload images
+            self.load_images()
+
+        except Exception as e:
+            logger.error(f"Error clearing cache: {e}")
+            messagebox.showerror("Error", f"Error clearing cache: {str(e)}")
+
     def on_close(self):
         """Handle application close."""
         try:
@@ -476,6 +548,17 @@ class WallpaperApp(tk.Tk):
             if hasattr(self, 'wallpaper_manager'):
                 self.wallpaper_manager.stop_scheduler()
                 logger.info("Stopped wallpaper scheduler")
+
+            # Perform cache cleanup
+            if hasattr(self, 'api_client'):
+                self.api_client.cleanup()
+                logger.info("Performed cache cleanup")
+
+            # Display cache statistics
+            if hasattr(self, 'api_client'):
+                stats = self.api_client.get_cache_stats()
+                if stats:
+                    logger.info(f"Cache stats: {stats}")
 
             # Destroy the window
             self.destroy()

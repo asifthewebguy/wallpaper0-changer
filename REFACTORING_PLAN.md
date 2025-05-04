@@ -8,22 +8,22 @@ The current image caching system has several inefficiencies that can be addresse
 
 ### High Priority Tasks
 
-- [ ] Create a dedicated `ImageCacheManager` class
-  - [ ] Implement cache size limits with LRU (Least Recently Used) eviction
-  - [ ] Add metadata tracking for cached images (creation date, last access, size)
-  - [ ] Implement cache cleanup on application exit
+- [x] Create a dedicated `ImageCacheManager` class
+  - [x] Implement cache size limits with LRU (Least Recently Used) eviction
+  - [x] Add metadata tracking for cached images (creation date, last access, size)
+  - [x] Implement cache cleanup on application exit
 
 - [ ] Improve thumbnail processing
-  - [ ] Implement on-demand thumbnail generation instead of processing all at startup
+  - [x] Implement on-demand thumbnail generation instead of processing all at startup
   - [ ] Add progressive loading for thumbnails in the UI
   - [ ] Implement background pre-fetching for visible and soon-to-be-visible thumbnails
 
 ### Medium Priority Tasks
 
-- [ ] Add cache persistence
-  - [ ] Store cache metadata in a SQLite database or JSON file
-  - [ ] Implement cache validation on startup
-  - [ ] Add option to clear cache from UI
+- [x] Add cache persistence
+  - [x] Store cache metadata in a SQLite database or JSON file
+  - [x] Implement cache validation on startup
+  - [x] Add option to clear cache from UI
 
 - [ ] Optimize image compression
   - [ ] Implement adaptive compression based on image content
