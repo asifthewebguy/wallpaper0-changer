@@ -19,10 +19,20 @@ echo Installation complete!
 echo To run the application, use: python main.py
 echo.
 
+:: Ask if user wants to register the URL protocol
+set /p register_protocol="Do you want to register the URL protocol for direct wallpaper links? (y/n): "
+if /i "%register_protocol%"=="y" (
+    call install_protocol.bat
+)
+
 :: Ask if user wants to run the application now
 set /p run_now="Do you want to run the application now? (y/n): "
 if /i "%run_now%"=="y" (
     python main.py
 )
+
+echo.
+echo You can also open wallpaper_links.html to see example wallpaper links.
+echo.
 
 pause

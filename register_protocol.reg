@@ -1,0 +1,12 @@
+Windows Registry Editor Version 5.00
+
+[HKEY_CLASSES_ROOT\wallpaper0-changer]
+@="URL:Wallpaper Changer Protocol"
+"URL Protocol"=""
+
+[HKEY_CLASSES_ROOT\wallpaper0-changer\shell]
+
+[HKEY_CLASSES_ROOT\wallpaper0-changer\shell\open]
+
+[HKEY_CLASSES_ROOT\wallpaper0-changer\shell\open\command]
+@="\"C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe\" -ExecutionPolicy Bypass -Command \"cd '%~dp0'; python main.py '%1'\""

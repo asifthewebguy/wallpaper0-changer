@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wallpaper Changer Links</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        h1 {
+            color: #4a6984;
+            border-bottom: 2px solid #4a6984;
+            padding-bottom: 10px;
+        }
+        .wallpaper-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .wallpaper-item {
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 10px;
+            text-align: center;
+            transition: transform 0.2s;
+        }
+        .wallpaper-item:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .wallpaper-item img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 3px;
+            margin-bottom: 10px;
+        }
+        .wallpaper-item a {
+            display: inline-block;
+            background-color: #4a6984;
+            color: white;
+            padding: 5px 10px;
+            text-decoration: none;
+            border-radius: 3px;
+            margin-top: 5px;
+        }
+        .wallpaper-item a:hover {
+            background-color: #3a5874;
+        }
+        .note {
+            background-color: #f8f8f8;
+            border-left: 4px solid #4a6984;
+            padding: 10px 15px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>Wallpaper Changer Quick Links</h1>
+
+    <div class="note">
+        <p><strong>Note:</strong> Before using these links, make sure you've run the <code>install_protocol.bat</code> script to register the URL protocol.</p>
+    </div>
+
+    <p>Click on any of the links below to set the corresponding wallpaper directly:</p>
+
+    <div class="wallpaper-grid">
+        <!-- Actual wallpapers from the API -->
+        <div class="wallpaper-item">
+            <img src="https://aiwp.me/api/images/005TN27O78.png/thumbnail" alt="Wallpaper">
+            <p>005TN27O78.png</p>
+            <a href="wallpaper0-changer:005TN27O78.png">Set as Wallpaper</a>
+        </div>
+
+        <div class="wallpaper-item">
+            <img src="https://aiwp.me/api/images/022DNLE6U1.png/thumbnail" alt="Wallpaper">
+            <p>022DNLE6U1.png</p>
+            <a href="wallpaper0-changer:022DNLE6U1.png">Set as Wallpaper</a>
+        </div>
+
+        <div class="wallpaper-item">
+            <img src="https://aiwp.me/api/images/02FRCLAUKC.jpg/thumbnail" alt="Wallpaper">
+            <p>02FRCLAUKC.jpg</p>
+            <a href="wallpaper0-changer:02FRCLAUKC.jpg">Set as Wallpaper</a>
+        </div>
+
+        <div class="wallpaper-item">
+            <img src="https://aiwp.me/api/images/03RBW0BRFO.png/thumbnail" alt="Wallpaper">
+            <p>03RBW0BRFO.png</p>
+            <a href="wallpaper0-changer:03RBW0BRFO.png">Set as Wallpaper</a>
+        </div>
+    </div>
+
+    <div class="note">
+        <p>You can also create desktop shortcuts with these URLs or use them in other applications.</p>
+    </div>
+</body>
+</html>

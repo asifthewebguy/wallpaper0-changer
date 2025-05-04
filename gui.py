@@ -26,7 +26,7 @@ class WallpaperApp(tk.Tk):
         self.minsize(800, 500)
 
         # Initialize API client and wallpaper manager
-        self.api_client = WallpaperAPIClient()
+        self.api_client = WallpaperAPIClient(compress_existing_thumbnails=True)
         self.wallpaper_manager = WallpaperManager()
 
         # State variables
@@ -56,7 +56,10 @@ class WallpaperApp(tk.Tk):
         controls_frame.pack(fill=tk.X, pady=(0, 10))
 
         refresh_button = ttk.Button(controls_frame, text="Refresh", command=self.load_images)
-        refresh_button.pack(side=tk.LEFT)
+        refresh_button.pack(side=tk.LEFT, padx=(0, 5))
+
+        compress_button = ttk.Button(controls_frame, text="Compress Thumbnails", command=self.compress_thumbnails)
+        compress_button.pack(side=tk.LEFT)
 
         # Style selection
         style_frame = ttk.LabelFrame(controls_frame, text="Wallpaper Style")
@@ -429,6 +432,42 @@ class WallpaperApp(tk.Tk):
 
         # Log the change
         logger.info(f"Random wallpaper changed to: {image_id}")
+
+    def compress_thumbnails(self):
+        """Compress all thumbnails in the cache to reduce disk space."""
+        # Show confirmation dialog
+        if not messagebox.askyesno(
+            "Compress Thumbnails",
+            "This will compress all thumbnails in the cache to reduce disk space. Continue?"
+        ):
+            return
+
+        # Disable UI during compression
+        self.status_var.set("Compressing thumbnails...")
+
+        # Start compression in a separate thread
+        threading.Thread(target=self._compress_thumbnails_thread, daemon=True).start()
+
+    def _compress_thumbnails_thread(self):
+        """Background thread for compressing thumbnails."""
+        try:
+            # Compress thumbnails
+            self.api_client.compress_existing_thumbnails()
+
+            # Update UI in the main thread
+            self.after(0, lambda: self.status_var.set("Thumbnail compression completed"))
+            self.after(0, lambda: messagebox.showinfo(
+                "Compression Complete",
+                "All thumbnails have been compressed successfully."
+            ))
+
+        except Exception as e:
+            logger.error(f"Error compressing thumbnails: {e}")
+            self.after(0, lambda: self.status_var.set(f"Error compressing thumbnails: {str(e)}"))
+            self.after(0, lambda: messagebox.showerror(
+                "Compression Error",
+                f"Error compressing thumbnails: {str(e)}"
+            ))
 
     def on_close(self):
         """Handle application close."""

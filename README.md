@@ -12,6 +12,8 @@ A Windows application to browse and set desktop wallpapers from an online API.
   - Change wallpaper every hour
   - Change wallpaper at a specific time each day
 - Caching for better performance
+- Optimized thumbnail storage with automatic compression
+- URL protocol support for changing wallpaper directly from links
 
 ## Requirements
 
@@ -46,6 +48,20 @@ python main.py
 3. Choose a wallpaper style (Fill, Fit, Stretch, etc.)
 4. Click "Apply Selected Wallpaper" to set it as your desktop background
 5. Use the "Refresh" button to reload the image list from the API
+6. Use the "Compress Thumbnails" button to reduce disk space usage by compressing cached thumbnails
+
+### URL Protocol Support
+
+The application supports a custom URL protocol that allows you to change the wallpaper directly from a link:
+
+1. First, run the `install_protocol.bat` script to register the URL protocol
+2. Then you can use links like `wallpaper0-changer:UQ0VJ5GNQ1.jpg` to set a specific wallpaper
+3. You can create these links in:
+   - HTML documents: `<a href="wallpaper0-changer:UQ0VJ5GNQ1.jpg">Set Wallpaper</a>`
+   - Desktop shortcuts
+   - Other applications
+
+This feature allows you to quickly set wallpapers without opening the full application.
 
 ### Random Wallpaper Scheduler
 
