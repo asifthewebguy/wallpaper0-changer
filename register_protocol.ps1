@@ -1,15 +1,44 @@
 # Register the wallpaper0-changer: protocol handler
 # This script must be run with administrator privileges
 
-# Get the full path to the application
-$appPath = Join-Path -Path $PSScriptRoot -ChildPath "WallpaperChanger\bin\Release\net8.0-windows\WallpaperChanger.exe"
+# Find the application executable
+$releaseFolder = Join-Path -Path $PSScriptRoot -ChildPath "WallpaperChanger\bin\Release"
+$exePath = $null
+
+# Look for the executable in any .NET version folder
+if (Test-Path $releaseFolder) {
+    $netFolders = Get-ChildItem -Path $releaseFolder -Directory -Filter "net*-windows"
+
+    if ($netFolders.Count -gt 0) {
+        foreach ($folder in $netFolders) {
+            $testPath = Join-Path -Path $folder.FullName -ChildPath "WallpaperChanger.exe"
+            if (Test-Path $testPath) {
+                $exePath = $testPath
+                break
+            }
+        }
+    }
+}
+
+# If not found, try to find it directly
+if (-not $exePath) {
+    $exeFiles = Get-ChildItem -Path $PSScriptRoot -Recurse -Filter "WallpaperChanger.exe" -ErrorAction SilentlyContinue
+    if ($exeFiles.Count -gt 0) {
+        $exePath = $exeFiles[0].FullName
+    }
+}
+
+# Set the application path
+$appPath = $exePath
 
 # Ensure the path exists
-if (-not (Test-Path $appPath)) {
-    Write-Error "Application not found at path: $appPath"
-    Write-Error "Please build the application in Release mode first."
+if (-not $appPath -or -not (Test-Path $appPath)) {
+    Write-Error "Application not found. Please build the application in Release mode first."
+    Write-Error "Expected path: $releaseFolder\net*-windows\WallpaperChanger.exe"
     exit 1
 }
+
+Write-Host "Found application at: $appPath"
 
 # Create the registry entries
 $protocolName = "wallpaper0-changer"
