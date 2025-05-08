@@ -8,6 +8,12 @@
   <a href="https://github.com/asifthewebguy/wallpaper0-changer/releases/latest">
     <img src="https://img.shields.io/github/v/release/asifthewebguy/wallpaper0-changer" alt="Latest Release">
   </a>
+  <a href="https://github.com/asifthewebguy/wallpaper0-changer/actions/workflows/ci.yml">
+    <img src="https://github.com/asifthewebguy/wallpaper0-changer/actions/workflows/ci.yml/badge.svg" alt="CI Status">
+  </a>
+  <a href="https://github.com/asifthewebguy/wallpaper0-changer/actions/workflows/codeql-analysis.yml">
+    <img src="https://github.com/asifthewebguy/wallpaper0-changer/actions/workflows/codeql-analysis.yml/badge.svg" alt="CodeQL Analysis">
+  </a>
   <a href="https://github.com/asifthewebguy/wallpaper0-changer/blob/master/LICENSE">
     <img src="https://img.shields.io/github/license/asifthewebguy/wallpaper0-changer" alt="License">
   </a>
