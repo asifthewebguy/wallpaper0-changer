@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wallpaper Changer Protocol Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        h1 {
+            color: #333;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+        }
+        .link-container {
+            margin: 20px 0;
+            padding: 15px;
+            background-color: #f5f5f5;
+            border-radius: 5px;
+        }
+        a {
+            display: inline-block;
+            margin: 10px 5px;
+            padding: 10px 15px;
+            background-color: #4CAF50;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+        a:hover {
+            background-color: #45a049;
+        }
+        .note {
+            margin-top: 30px;
+            padding: 15px;
+            background-color: #ffffd9;
+            border-left: 4px solid #ffeb3b;
+        }
+        .logo {
+            text-align: center;
+            margin: 20px 0;
+        }
+        .logo img {
+            max-width: 120px;
+            height: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="logo">
+        <img src="logo-120.png" alt="Wallpaper Changer Logo">
+    </div>
+
+    <h1>Wallpaper Changer Protocol Test</h1>
+
+    <div class="link-container">
+        <h2>Test Links</h2>
+        <p>Click on any of the links below to test the wallpaper0-changer protocol:</p>
+
+        <a href="wallpaper0-changer:005TN27O78.png">Set Wallpaper 1</a><br>
+        <a href="wallpaper0-changer:51NSZI5T5K.png">Set Wallpaper 2</a><br>
+        <a href="wallpaper0-changer:AAAA1111.png">Set Wallpaper 3 (Invalid ID)</a>
+    </div>
+
+    <div class="note">
+        <h3>Note:</h3>
+        <p>If clicking the links doesn't work, make sure:</p>
+        <ol>
+            <li>The application is built in Release mode</li>
+            <li>The protocol is registered (run register_protocol.ps1 as administrator)</li>
+            <li>The application is not already running (if it is, close it first)</li>
+        </ol>
+        <p>You may need to restart your browser after registering the protocol.</p>
+    </div>
+</body>
+</html>

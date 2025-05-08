@@ -29,9 +29,11 @@ A Windows native application that sets desktop wallpaper from aiwp.me when trigg
 - [x] Add minimal UI for status feedback
 - [x] Implement notification for successful wallpaper changes
 - [x] Add error notifications
+- [x] Add custom application icon
 
 ### Deployment
 - [x] Create a simple installer (PowerShell script for protocol registration)
+- [x] Create a comprehensive installer with uninstaller
 - [ ] Test on different Windows versions
 - [x] Document installation and usage instructions
 

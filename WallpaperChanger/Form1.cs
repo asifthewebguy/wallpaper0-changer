@@ -40,20 +40,46 @@ public partial class Form1 : Form
 
         // Set up notification icon
         SetupNotifyIcon();
+    }
 
-        // Process command line arguments
-        string[] args = Environment.GetCommandLineArgs();
-        if (args.Length > 1)
+    /// <summary>
+    /// Process a command line argument received from another instance
+    /// </summary>
+    public void ProcessCommandLineArgument(string arg)
+    {
+        if (!string.IsNullOrEmpty(arg))
         {
-            ProcessProtocolUrl(args[1]);
+            ProcessProtocolUrl(arg);
         }
     }
 
     private void SetupNotifyIcon()
     {
+        // Load the custom icon
+        var iconPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Resources", "wallpaper_icon.ico");
+        Icon customIcon;
+
+        if (File.Exists(iconPath))
+        {
+            try
+            {
+                customIcon = new Icon(iconPath);
+            }
+            catch (Exception)
+            {
+                // Fallback to system icon if there's an error loading the custom icon
+                customIcon = SystemIcons.Application;
+            }
+        }
+        else
+        {
+            // Fallback to system icon if the file doesn't exist
+            customIcon = SystemIcons.Application;
+        }
+
         _notifyIcon = new NotifyIcon
         {
-            Icon = SystemIcons.Application,
+            Icon = customIcon,
             Visible = true,
             Text = "Wallpaper Changer"
         };
@@ -68,11 +94,30 @@ public partial class Form1 : Form
     {
         try
         {
+            ShowNotification("Debug", $"Processing URL: {url}");
+
             // Parse the URL (format: wallpaper0-changer:image_id)
             if (url.StartsWith("wallpaper0-changer:"))
             {
                 string imageId = url.Substring("wallpaper0-changer:".Length);
+                ShowNotification("Debug", $"Extracted image ID: {imageId}");
                 DownloadAndSetWallpaper(imageId);
+            }
+            // Handle URL with protocol prefix that might come from browsers
+            else if (url.Contains("wallpaper0-changer:"))
+            {
+                int index = url.IndexOf("wallpaper0-changer:");
+                string imageId = url.Substring(index + "wallpaper0-changer:".Length);
+
+                // Clean up the image ID (remove any trailing characters)
+                imageId = imageId.Split('&', '?', '#', ' ')[0];
+
+                ShowNotification("Debug", $"Extracted image ID from complex URL: {imageId}");
+                DownloadAndSetWallpaper(imageId);
+            }
+            else
+            {
+                ShowNotification("Error", $"Invalid URL format: {url}");
             }
         }
         catch (Exception ex)

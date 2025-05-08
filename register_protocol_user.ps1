@@ -1,5 +1,5 @@
-# Register the wallpaper0-changer: protocol handler
-# This script must be run with administrator privileges
+# Register the wallpaper0-changer: protocol handler for the current user only
+# This script does NOT require administrator privileges
 
 # Find the application executable
 $releaseFolder = Join-Path -Path $PSScriptRoot -ChildPath "WallpaperChanger\bin\Release"
@@ -43,19 +43,20 @@ Write-Host "Found application at: $appPath"
 # Create the registry entries
 $protocolName = "wallpaper0-changer"
 
-# Create the protocol key
-New-Item -Path "HKLM:\SOFTWARE\Classes\$protocolName" -Force | Out-Null
-Set-ItemProperty -Path "HKLM:\SOFTWARE\Classes\$protocolName" -Name "(Default)" -Value "URL:Wallpaper Changer Protocol" -Force
-Set-ItemProperty -Path "HKLM:\SOFTWARE\Classes\$protocolName" -Name "URL Protocol" -Value "" -Force
+# Create the protocol key in HKCU (current user) instead of HKLM (local machine)
+New-Item -Path "HKCU:\SOFTWARE\Classes\$protocolName" -Force | Out-Null
+Set-ItemProperty -Path "HKCU:\SOFTWARE\Classes\$protocolName" -Name "(Default)" -Value "URL:Wallpaper Changer Protocol" -Force
+Set-ItemProperty -Path "HKCU:\SOFTWARE\Classes\$protocolName" -Name "URL Protocol" -Value "" -Force
 
 # Create the DefaultIcon key
-New-Item -Path "HKLM:\SOFTWARE\Classes\$protocolName\DefaultIcon" -Force | Out-Null
+New-Item -Path "HKCU:\SOFTWARE\Classes\$protocolName\DefaultIcon" -Force | Out-Null
 # Use the application's icon (0 is the first icon in the executable)
-Set-ItemProperty -Path "HKLM:\SOFTWARE\Classes\$protocolName\DefaultIcon" -Name "(Default)" -Value "$appPath,0" -Force
+Set-ItemProperty -Path "HKCU:\SOFTWARE\Classes\$protocolName\DefaultIcon" -Name "(Default)" -Value "$appPath,0" -Force
 
 # Create the shell\open\command key
-New-Item -Path "HKLM:\SOFTWARE\Classes\$protocolName\shell\open\command" -Force | Out-Null
-Set-ItemProperty -Path "HKLM:\SOFTWARE\Classes\$protocolName\shell\open\command" -Name "(Default)" -Value "`"$appPath`" `"%1`"" -Force
+New-Item -Path "HKCU:\SOFTWARE\Classes\$protocolName\shell\open\command" -Force | Out-Null
+Set-ItemProperty -Path "HKCU:\SOFTWARE\Classes\$protocolName\shell\open\command" -Name "(Default)" -Value "`"$appPath`" `"%1`"" -Force
 
-Write-Host "Protocol $protocolName has been registered successfully."
+Write-Host "Protocol $protocolName has been registered successfully for the current user."
 Write-Host "You can now use links like $protocolName:image_id to set wallpapers."
+Write-Host "You may need to restart your browser for the changes to take effect."

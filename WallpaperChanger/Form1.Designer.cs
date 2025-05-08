@@ -36,6 +36,21 @@ partial class Form1
     private void InitializeComponent()
     {
         this.components = new System.ComponentModel.Container();
+
+        // Set the icon for the form
+        try
+        {
+            var iconPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Resources", "wallpaper_icon.ico");
+            if (File.Exists(iconPath))
+            {
+                this.Icon = new Icon(iconPath);
+            }
+        }
+        catch
+        {
+            // Ignore any errors loading the icon
+        }
+
         this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
         this.ClientSize = new System.Drawing.Size(400, 200);
         this.Text = "Wallpaper Changer";
