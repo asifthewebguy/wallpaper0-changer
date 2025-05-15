@@ -20,6 +20,9 @@ public partial class Form1 : Form
     private const string IMAGES_DATA_URL = API_BASE_URL + "images-data.json";
     private const string IMAGE_DETAILS_URL = API_BASE_URL + "images/{0}.json";
 
+    // Debug settings
+    private const bool SHOW_DEBUG_NOTIFICATIONS = false;
+
     // Cache directory
     private readonly string _cacheDir;
 
@@ -94,13 +97,10 @@ public partial class Form1 : Form
     {
         try
         {
-            ShowNotification("Debug", $"Processing URL: {url}");
-
             // Parse the URL (format: wallpaper0-changer:image_id)
             if (url.StartsWith("wallpaper0-changer:"))
             {
                 string imageId = url.Substring("wallpaper0-changer:".Length);
-                ShowNotification("Debug", $"Extracted image ID: {imageId}");
                 DownloadAndSetWallpaper(imageId);
             }
             // Handle URL with protocol prefix that might come from browsers
@@ -112,7 +112,6 @@ public partial class Form1 : Form
                 // Clean up the image ID (remove any trailing characters)
                 imageId = imageId.Split('&', '?', '#', ' ')[0];
 
-                ShowNotification("Debug", $"Extracted image ID from complex URL: {imageId}");
                 DownloadAndSetWallpaper(imageId);
             }
             else
@@ -184,8 +183,8 @@ public partial class Form1 : Form
                     return thumbnailUrlElement.GetString() ?? string.Empty;
                 }
 
-                // If none of the above properties exist, log the available properties
-                ShowNotification("Debug", "Available properties: " + string.Join(", ", root.EnumerateObject().Select(p => p.Name)));
+                // If none of the above properties exist, we'll return an empty string
+                // No debug notification needed
             }
         }
 
@@ -227,6 +226,10 @@ public partial class Form1 : Form
 
     private void ShowNotification(string title, string message)
     {
+        // Skip debug notifications unless debug is enabled
+        if (title == "Debug" && !SHOW_DEBUG_NOTIFICATIONS)
+            return;
+
         _notifyIcon.BalloonTipTitle = title;
         _notifyIcon.BalloonTipText = message;
         _notifyIcon.ShowBalloonTip(3000);
