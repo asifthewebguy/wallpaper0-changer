@@ -48,8 +48,11 @@ See the [Release Notes](https://github.com/asifthewebguy/wallpaper0-changer/rele
 
 1. Download the **Standalone Release** from the [latest release](https://github.com/asifthewebguy/wallpaper0-changer/releases/latest)
 2. Extract the zip file
-3. Right-click on `install.ps1` and select "Run with PowerShell"
+3. **Easy Installation**: Double-click `install.bat`
+   - OR right-click on `install.ps1` and select "Run with PowerShell"
 4. Follow the on-screen instructions
+
+> **💡 Having installation issues?** See [INSTALLATION_TROUBLESHOOTING.md](INSTALLATION_TROUBLESHOOTING.md) for solutions to common problems like "execution policy" errors.
 
 **Features:**
 - ✅ No .NET runtime installation required
