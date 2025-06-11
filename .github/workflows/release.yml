@@ -5,6 +5,10 @@ on:
     tags:
       - 'v*' # Push events to matching v*, i.e. v1.0, v20.15.10
 
+permissions:
+  contents: write
+  packages: write
+
 jobs:
   build:
     name: Create Release
@@ -22,11 +26,11 @@ jobs:
     - name: Restore dependencies
       run: dotnet restore
 
-    - name: Publish
-      run: dotnet publish WallpaperChanger/WallpaperChanger.csproj --configuration Release --output publish --self-contained true --runtime win-x64
+    - name: Build
+      run: dotnet build --no-restore --configuration Release
 
     - name: Test
-      run: dotnet test --no-build --verbosity normal --configuration Release
+      run: dotnet test --configuration Release --verbosity normal
       continue-on-error: true  # Allow tests to fail for now until we have proper test setup
 
     - name: Create Release Package
@@ -51,8 +55,15 @@ jobs:
         }
         New-Item -Path $tempDir -ItemType Directory -Force | Out-Null
 
-        # Copy the main executable (single file deployment - includes all dependencies and icon)
-        Copy-Item -Path "publish\WallpaperChanger.exe" -Destination $tempDir -Force
+        # Copy files to the temporary directory
+        Copy-Item -Path "WallpaperChanger\bin\Release\net9.0-windows\WallpaperChanger.exe" -Destination $tempDir -Force
+        Copy-Item -Path "WallpaperChanger\bin\Release\net9.0-windows\WallpaperChanger.dll" -Destination $tempDir -Force
+        Copy-Item -Path "WallpaperChanger\bin\Release\net9.0-windows\WallpaperChanger.runtimeconfig.json" -Destination $tempDir -Force
+
+        # Create Resources directory and copy icon
+        $resourcesDir = Join-Path -Path $tempDir -ChildPath "Resources"
+        New-Item -Path $resourcesDir -ItemType Directory -Force | Out-Null
+        Copy-Item -Path "WallpaperChanger\bin\Release\net9.0-windows\Resources\wallpaper_icon.ico" -Destination $resourcesDir -Force
 
         # Copy scripts and documentation
         Copy-Item -Path "install.ps1" -Destination $tempDir -Force
