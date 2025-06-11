@@ -1,8 +1,8 @@
-# Wallpaper Changer v1.0.3 - Release Workflow Fix
+# Wallpaper Changer v1.0.3 - Complete Installation Solution
 
 ## Overview
 
-This is a maintenance release that fixes the GitHub Actions release workflow. The application functionality remains the same as v1.0.1, but the automated release process has been improved and the permissions issue has been resolved.
+This is a comprehensive release that includes all the best features from previous versions plus significant improvements to the installation experience and automated release process. This version provides multiple installation options to ensure compatibility across different Windows environments.
 
 ## Features
 
@@ -12,22 +12,40 @@ This is a maintenance release that fixes the GitHub Actions release workflow. Th
 - **System Tray Application**: Runs in the system tray with a custom logo icon for minimal interference
 - **Caching System**: Caches downloaded images to avoid re-downloading
 
-## What's Fixed in This Release
+## What's New and Improved in This Release
 
-- **GitHub Actions Release Workflow**: Fixed the automated release workflow that was failing due to incorrect build output paths
-- **GitHub Actions Permissions**: Fixed "Resource not accessible by integration" error by adding proper permissions
-- **Self-Contained Deployment**: Improved the release process to properly create self-contained executables
-- **Build Path Corrections**: Updated workflow to use the correct paths for .NET 9 with RuntimeIdentifier=win-x64
-- **CI/CD Improvements**: Enhanced the continuous integration and deployment pipeline
+### 🚀 Installation Experience
+- **Multiple Installation Options**: Choose from PowerShell script, batch file, or manual installation
+- **PowerShell Execution Policy Solutions**: Added `install.bat` to bypass common "digitally signed" errors
+- **Comprehensive Troubleshooting Guide**: Detailed solutions for common installation issues
+- **Self-Contained Deployment**: No .NET runtime installation required
+
+### 🔧 Technical Improvements
+- **GitHub Actions Release Workflow**: Fixed automated release workflow with proper permissions
+- **Build Path Corrections**: Updated workflow to use correct paths for .NET 9 with RuntimeIdentifier=win-x64
+- **CI/CD Pipeline**: Enhanced continuous integration and deployment process
+- **Workflow Robustness**: Improved error handling and re-run capabilities
+
+### 📚 Documentation
+- **Installation Troubleshooting Guide**: `INSTALLATION_TROUBLESHOOTING.md` with detailed solutions
+- **Updated README**: Clear installation instructions with multiple options
+- **Enhanced Release Notes**: Comprehensive documentation of all features and fixes
 
 ## Installation
 
-### Easy Installation (Recommended)
+### 🚀 Easy Installation (Recommended)
 
+**Option 1: Batch File (Bypasses PowerShell Issues)**
 1. Download the release zip file
 2. Extract all files
-3. Run the `install.ps1` script
+3. **Double-click `install.bat`** (easiest method)
 4. Follow the on-screen instructions
+
+**Option 2: PowerShell Script**
+1. Download the release zip file
+2. Extract all files
+3. Right-click `install.ps1` and select "Run with PowerShell"
+4. If you get execution policy errors, see `INSTALLATION_TROUBLESHOOTING.md`
 
 The installer will:
 - Copy the self-contained application to the installation directory
@@ -37,7 +55,7 @@ The installer will:
 
 **Note**: This release includes a self-contained executable that doesn't require .NET runtime installation.
 
-### Manual Installation
+### 🔧 Manual Installation
 
 If you prefer to install manually:
 
@@ -45,6 +63,14 @@ If you prefer to install manually:
 2. Copy the `Resources` folder to the same location as the executable
 3. Run the `register_protocol.ps1` script with administrator privileges (or `register_protocol_user.ps1` for current user only)
 4. The application will start automatically when you click on a `wallpaper0-changer:` link
+
+### 🆘 Having Installation Issues?
+
+If you encounter "execution policy" or "digitally signed" errors, check out `INSTALLATION_TROUBLESHOOTING.md` for detailed solutions including:
+- PowerShell execution policy fixes
+- Alternative installation methods
+- Common error solutions
+- Manual installation steps
 
 ## Usage
 
