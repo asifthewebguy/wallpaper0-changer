@@ -5,6 +5,10 @@ on:
     tags:
       - 'v*' # Push events to matching v*, i.e. v1.0, v20.15.10
 
+permissions:
+  contents: write
+  packages: write
+
 jobs:
   build:
     name: Create Release
@@ -29,6 +33,9 @@ jobs:
       run: dotnet test --no-build --verbosity normal --configuration Release
       continue-on-error: true  # Allow tests to fail for now until we have proper test setup
 
+    - name: Publish Self-Contained Application
+      run: dotnet publish WallpaperChanger/WallpaperChanger.csproj --configuration Release --runtime win-x64 --self-contained true --output publish/
+
     - name: Create Release Package
       shell: pwsh
       run: |
@@ -51,24 +58,29 @@ jobs:
         }
         New-Item -Path $tempDir -ItemType Directory -Force | Out-Null
 
-        # Copy files to the temporary directory
-        Copy-Item -Path "WallpaperChanger\bin\Release\net9.0-windows\WallpaperChanger.exe" -Destination $tempDir -Force
-        Copy-Item -Path "WallpaperChanger\bin\Release\net9.0-windows\WallpaperChanger.dll" -Destination $tempDir -Force
-        Copy-Item -Path "WallpaperChanger\bin\Release\net9.0-windows\WallpaperChanger.runtimeconfig.json" -Destination $tempDir -Force
+        # Copy files from the published output directory
+        Copy-Item -Path "publish\WallpaperChanger.exe" -Destination $tempDir -Force
+
+        # Copy all other files from publish directory (this includes all dependencies)
+        Get-ChildItem -Path "publish" -File | Where-Object { $_.Name -ne "WallpaperChanger.exe" } | ForEach-Object {
+            Copy-Item -Path $_.FullName -Destination $tempDir -Force
+        }
 
         # Create Resources directory and copy icon
         $resourcesDir = Join-Path -Path $tempDir -ChildPath "Resources"
         New-Item -Path $resourcesDir -ItemType Directory -Force | Out-Null
-        Copy-Item -Path "WallpaperChanger\bin\Release\net9.0-windows\Resources\wallpaper_icon.ico" -Destination $resourcesDir -Force
+        Copy-Item -Path "publish\Resources\wallpaper_icon.ico" -Destination $resourcesDir -Force
 
         # Copy scripts and documentation
         Copy-Item -Path "install.ps1" -Destination $tempDir -Force
+        Copy-Item -Path "install.bat" -Destination $tempDir -Force
         Copy-Item -Path "register_protocol.ps1" -Destination $tempDir -Force
         Copy-Item -Path "register_protocol_user.ps1" -Destination $tempDir -Force
         Copy-Item -Path "test_protocol.html" -Destination $tempDir -Force
         Copy-Item -Path "README.md" -Destination $tempDir -Force
         Copy-Item -Path "logo-120.png" -Destination $tempDir -Force
         Copy-Item -Path "RELEASE_NOTES.md" -Destination $tempDir -Force
+        Copy-Item -Path "INSTALLATION_TROUBLESHOOTING.md" -Destination $tempDir -Force
 
         # Create the zip file
         if (Test-Path $releasePackage) {
@@ -87,7 +99,6 @@ jobs:
     - name: Create Release
       id: create_release
       uses: softprops/action-gh-release@v2
-      continue-on-error: false
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
@@ -97,6 +108,3 @@ jobs:
         draft: false
         prerelease: false
         files: ${{ env.RELEASE_ASSET }}
-        fail_on_unmatched_files: true
-        generate_release_notes: false
-        make_latest: true
