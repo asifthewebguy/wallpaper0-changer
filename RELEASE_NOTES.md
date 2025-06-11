@@ -1,8 +1,8 @@
-# Wallpaper Changer v1.0.0 - Release Notes
+# Wallpaper Changer v1.0.2 - Release Workflow Fix
 
 ## Overview
 
-Wallpaper Changer is a Windows application that changes desktop wallpapers using images from aiwp.me via a custom URL protocol. This first official release includes all core functionality and several enhancements.
+This is a maintenance release that fixes the GitHub Actions release workflow. The application functionality remains the same as v1.0.1, but the automated release process has been improved.
 
 ## Features
 
@@ -12,14 +12,12 @@ Wallpaper Changer is a Windows application that changes desktop wallpapers using
 - **System Tray Application**: Runs in the system tray with a custom logo icon for minimal interference
 - **Caching System**: Caches downloaded images to avoid re-downloading
 
-## What's New in This Release
+## What's Fixed in This Release
 
-- **Custom Logo Icon**: Added a distinctive logo that appears in the application window, taskbar, and system tray
-- **Improved System Tray Integration**: Enhanced notification system and context menu
-- **Comprehensive Installer**: Added an installer script that handles all setup tasks
-- **Uninstaller**: Included an uninstaller for easy removal
-- **Enhanced Protocol Handler**: Improved protocol registration for better browser integration
-- **Documentation**: Updated README and added detailed release notes
+- **GitHub Actions Release Workflow**: Fixed the automated release workflow that was failing due to incorrect build output paths
+- **Self-Contained Deployment**: Improved the release process to properly create self-contained executables
+- **Build Path Corrections**: Updated workflow to use the correct paths for .NET 9 with RuntimeIdentifier=win-x64
+- **CI/CD Improvements**: Enhanced the continuous integration and deployment pipeline
 
 ## Installation
 
@@ -31,19 +29,21 @@ Wallpaper Changer is a Windows application that changes desktop wallpapers using
 4. Follow the on-screen instructions
 
 The installer will:
-- Build the application (if needed)
-- Copy files to the installation directory
+- Copy the self-contained application to the installation directory
 - Create a Start Menu shortcut
 - Register the protocol handler
 - Create an uninstaller
+
+**Note**: This release includes a self-contained executable that doesn't require .NET runtime installation.
 
 ### Manual Installation
 
 If you prefer to install manually:
 
-1. Build the application in Release mode
-2. Run the `register_protocol.ps1` script with administrator privileges (or `register_protocol_user.ps1` for current user only)
-3. The application will start automatically when you click on a `wallpaper0-changer:` link
+1. Extract `WallpaperChanger.exe` to your desired location
+2. Copy the `Resources` folder to the same location as the executable
+3. Run the `register_protocol.ps1` script with administrator privileges (or `register_protocol_user.ps1` for current user only)
+4. The application will start automatically when you click on a `wallpaper0-changer:` link
 
 ## Usage
 

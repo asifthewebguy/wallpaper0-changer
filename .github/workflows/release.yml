@@ -29,6 +29,17 @@ jobs:
       run: dotnet test --no-build --verbosity normal --configuration Release
       continue-on-error: true  # Allow tests to fail for now until we have proper test setup
 
+    - name: Publish Self-Contained Application
+      run: |
+        dotnet publish WallpaperChanger/WallpaperChanger.csproj `
+          -c Release `
+          -r win-x64 `
+          --self-contained true `
+          -p:PublishSingleFile=true `
+          -p:IncludeNativeLibrariesForSelfExtract=true `
+          -p:DebugType=none `
+          -p:DebugSymbols=false
+
     - name: Create Release Package
       shell: pwsh
       run: |
@@ -51,15 +62,18 @@ jobs:
         }
         New-Item -Path $tempDir -ItemType Directory -Force | Out-Null
 
-        # Copy files to the temporary directory
-        Copy-Item -Path "WallpaperChanger\bin\Release\net9.0-windows\WallpaperChanger.exe" -Destination $tempDir -Force
-        Copy-Item -Path "WallpaperChanger\bin\Release\net9.0-windows\WallpaperChanger.dll" -Destination $tempDir -Force
-        Copy-Item -Path "WallpaperChanger\bin\Release\net9.0-windows\WallpaperChanger.runtimeconfig.json" -Destination $tempDir -Force
+        # Copy the self-contained executable from publish output
+        $publishPath = "WallpaperChanger\bin\Release\net9.0-windows\win-x64\publish\WallpaperChanger.exe"
+        if (-not (Test-Path $publishPath)) {
+            Write-Error "Published executable not found at: $publishPath"
+            exit 1
+        }
+        Copy-Item -Path $publishPath -Destination $tempDir -Force
 
-        # Create Resources directory and copy icon
+        # Create Resources directory and copy icon from source
         $resourcesDir = Join-Path -Path $tempDir -ChildPath "Resources"
         New-Item -Path $resourcesDir -ItemType Directory -Force | Out-Null
-        Copy-Item -Path "WallpaperChanger\bin\Release\net9.0-windows\Resources\wallpaper_icon.ico" -Destination $resourcesDir -Force
+        Copy-Item -Path "WallpaperChanger\Resources\wallpaper_icon.ico" -Destination $resourcesDir -Force
 
         # Copy scripts and documentation
         Copy-Item -Path "install.ps1" -Destination $tempDir -Force

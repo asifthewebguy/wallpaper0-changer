@@ -34,5 +34,5 @@ jobs:
       with:
         name: WallpaperChanger-build
         path: |
-          WallpaperChanger/bin/Release/net9.0-windows/
-          !WallpaperChanger/bin/Release/net9.0-windows/ref/
+          WallpaperChanger/bin/Release/net9.0-windows/win-x64/
+          !WallpaperChanger/bin/Release/net9.0-windows/win-x64/ref/
