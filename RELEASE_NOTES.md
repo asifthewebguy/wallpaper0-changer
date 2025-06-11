@@ -1,8 +1,8 @@
-# Wallpaper Changer v1.0.2 - Release Workflow Fix
+# Wallpaper Changer v1.0.3 - Release Workflow Fix
 
 ## Overview
 
-This is a maintenance release that fixes the GitHub Actions release workflow. The application functionality remains the same as v1.0.1, but the automated release process has been improved.
+This is a maintenance release that fixes the GitHub Actions release workflow. The application functionality remains the same as v1.0.1, but the automated release process has been improved and the permissions issue has been resolved.
 
 ## Features
 
@@ -15,6 +15,7 @@ This is a maintenance release that fixes the GitHub Actions release workflow. Th
 ## What's Fixed in This Release
 
 - **GitHub Actions Release Workflow**: Fixed the automated release workflow that was failing due to incorrect build output paths
+- **GitHub Actions Permissions**: Fixed "Resource not accessible by integration" error by adding proper permissions
 - **Self-Contained Deployment**: Improved the release process to properly create self-contained executables
 - **Build Path Corrections**: Updated workflow to use the correct paths for .NET 9 with RuntimeIdentifier=win-x64
 - **CI/CD Improvements**: Enhanced the continuous integration and deployment pipeline
