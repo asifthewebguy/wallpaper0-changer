@@ -1,19 +1,6 @@
 # Wallpaper Changer Installer Script
 # This script builds the application, copies it to the installation directory,
 # and registers the protocol handler.
-#
-# EXECUTION POLICY ISSUE?
-# If you get "execution policy" or "digitally signed" errors, try one of these:
-#
-# Option 1 (Recommended): Run PowerShell as Administrator and execute:
-#   Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process
-#   .\install.ps1
-#
-# Option 2: Run with bypass parameter:
-#   powershell -ExecutionPolicy Bypass -File .\install.ps1
-#
-# Option 3: Unblock the file:
-#   Right-click install.ps1 → Properties → Check "Unblock" → OK
 
 param (
     [string]$InstallDir = "$env:LOCALAPPDATA\WallpaperChanger",
