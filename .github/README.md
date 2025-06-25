@@ -121,6 +121,13 @@ git push origin v1.2.0
 ### Secrets Required
 - `GITHUB_TOKEN`: Automatically provided by GitHub
 
+### Permissions
+All workflows are configured with the minimum required permissions:
+- **CI Workflow**: `contents: read`, `actions: read`
+- **Release Workflow**: `contents: write`, `packages: write`, `actions: read`
+- **Version Check**: `contents: read`, `actions: read`
+- **Update Version**: `contents: write`, `pull-requests: write`, `issues: write`, `actions: read`
+
 ### Dependencies
 - **WiX Toolset**: Auto-installed for MSI builds
 - **NSIS**: Auto-installed for NSIS builds
@@ -170,6 +177,11 @@ The pipeline ensures version consistency across:
    - Version already exists
    - Missing required artifacts
    - Permission issues
+
+5. **Permission Errors**:
+   - "Resource not accessible by integration"
+   - Check workflow permissions in `.github/workflows/*.yml`
+   - Ensure repository settings allow Actions to create PRs
 
 ### Debug Steps
 
