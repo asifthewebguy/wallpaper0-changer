@@ -12,7 +12,7 @@ namespace WallpaperChanger.Tests;
 [TestClass]
 public sealed class WallpaperChangerTests
 {
-    private string _testCacheDir;
+    private string _testCacheDir = string.Empty;
 
     [TestInitialize]
     public void Setup()

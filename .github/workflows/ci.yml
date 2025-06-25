@@ -7,32 +7,120 @@ on:
     branches: [ master ]
   workflow_dispatch:  # Allow manual triggering
 
+env:
+  DOTNET_VERSION: '9.0.x'
+  BUILD_CONFIGURATION: 'Release'
+  APP_VERSION: '1.1.0'
+
 jobs:
-  build:
+  build-and-test:
+    name: Build and Test
     runs-on: windows-latest
 
     steps:
-    - uses: actions/checkout@v4
+    - name: Checkout code
+      uses: actions/checkout@v4
 
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: '9.0.x'
+        dotnet-version: ${{ env.DOTNET_VERSION }}
+
+    - name: Cache NuGet packages
+      uses: actions/cache@v4
+      with:
+        path: ~/.nuget/packages
+        key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj') }}
+        restore-keys: |
+          ${{ runner.os }}-nuget-
 
     - name: Restore dependencies
       run: dotnet restore
 
-    - name: Build
-      run: dotnet build --no-restore --configuration Release
+    - name: Build framework-dependent
+      run: dotnet build --no-restore --configuration ${{ env.BUILD_CONFIGURATION }}
 
-    - name: Test
-      run: dotnet test --no-build --verbosity normal --configuration Release
-      continue-on-error: true  # Allow tests to fail for now until we have proper test setup
+    - name: Run tests
+      run: dotnet test --no-build --verbosity normal --configuration ${{ env.BUILD_CONFIGURATION }} --logger trx --results-directory TestResults
 
-    - name: Upload build artifacts
+    - name: Publish test results
+      uses: dorny/test-reporter@v1
+      if: success() || failure()
+      with:
+        name: Test Results
+        path: TestResults/*.trx
+        reporter: dotnet-trx
+
+    - name: Build self-contained
+      run: dotnet publish WallpaperChanger --configuration ${{ env.BUILD_CONFIGURATION }} --self-contained true --runtime win-x64 --output publish
+
+    - name: Upload framework-dependent build
       uses: actions/upload-artifact@v4
       with:
-        name: WallpaperChanger-build
+        name: WallpaperChanger-framework-dependent
         path: |
           WallpaperChanger/bin/Release/net9.0-windows/
           !WallpaperChanger/bin/Release/net9.0-windows/ref/
+
+    - name: Upload self-contained build
+      uses: actions/upload-artifact@v4
+      with:
+        name: WallpaperChanger-self-contained
+        path: publish/
+
+  build-installers:
+    name: Build Installers
+    runs-on: windows-latest
+    needs: build-and-test
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Download self-contained build
+      uses: actions/download-artifact@v4
+      with:
+        name: WallpaperChanger-self-contained
+        path: publish/
+
+    - name: Install WiX Toolset
+      run: dotnet tool install --global wix --version 5.0.1
+
+    - name: Build PowerShell Installer
+      shell: pwsh
+      run: |
+        cd installer
+        .\Build-All-Installers.ps1 -BuildTypes "PowerShell" -Version "${{ env.APP_VERSION }}" -SourceDir "..\publish"
+
+    - name: Build NSIS Installer
+      shell: pwsh
+      run: |
+        # Install NSIS
+        winget install NSIS.NSIS --silent --accept-package-agreements --accept-source-agreements
+
+        # Add NSIS to PATH
+        $env:PATH += ";${env:ProgramFiles}\NSIS"
+
+        cd installer
+        .\Build-All-Installers.ps1 -BuildTypes "NSIS" -Version "${{ env.APP_VERSION }}" -SourceDir "..\publish"
+      continue-on-error: true  # NSIS installation might fail in some environments
+
+    - name: Build MSI Installer
+      shell: pwsh
+      run: |
+        cd installer
+        .\Build-All-Installers.ps1 -BuildTypes "MSI" -Version "${{ env.APP_VERSION }}" -SourceDir "..\publish"
+      continue-on-error: true  # WiX might have issues in CI environment
+
+    - name: Build Batch Installer
+      shell: pwsh
+      run: |
+        cd installer
+        .\Build-All-Installers.ps1 -BuildTypes "Batch" -Version "${{ env.APP_VERSION }}" -SourceDir "..\publish"
+
+    - name: Upload installers
+      uses: actions/upload-artifact@v4
+      with:
+        name: WallpaperChanger-installers
+        path: installer/output/

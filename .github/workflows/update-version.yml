@@ -1,0 +1,293 @@
+name: Update Version
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'New version (e.g., 1.2.0)'
+        required: true
+        type: string
+      update_installers:
+        description: 'Update installer scripts'
+        required: false
+        type: boolean
+        default: true
+      update_workflows:
+        description: 'Update CI/CD workflows'
+        required: false
+        type: boolean
+        default: true
+      create_pr:
+        description: 'Create pull request with changes'
+        required: false
+        type: boolean
+        default: true
+
+jobs:
+  update-version:
+    name: Update Version Across Project
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        fetch-depth: 0
+
+    - name: Validate version format
+      run: |
+        VERSION="${{ github.event.inputs.version }}"
+        if [[ ! $VERSION =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+          echo "❌ Invalid version format. Expected: X.Y.Z (e.g., 1.2.0)"
+          exit 1
+        fi
+        echo "✅ Version format is valid: $VERSION"
+
+    - name: Check if version already exists
+      run: |
+        VERSION="${{ github.event.inputs.version }}"
+        if gh release view "v$VERSION" >/dev/null 2>&1; then
+          echo "❌ Version v$VERSION already exists as a release!"
+          exit 1
+        fi
+        echo "✅ Version v$VERSION is available"
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Update project file
+      run: |
+        VERSION="${{ github.event.inputs.version }}"
+        PROJECT_FILE="WallpaperChanger/WallpaperChanger.csproj"
+        
+        echo "📝 Updating $PROJECT_FILE..."
+        
+        # Read the current content
+        CONTENT=$(cat "$PROJECT_FILE")
+        
+        # Update or add version properties
+        if grep -q "<Version>" "$PROJECT_FILE"; then
+          # Update existing version
+          sed -i "s|<Version>.*</Version>|<Version>$VERSION</Version>|g" "$PROJECT_FILE"
+          sed -i "s|<AssemblyVersion>.*</AssemblyVersion>|<AssemblyVersion>$VERSION.0</AssemblyVersion>|g" "$PROJECT_FILE"
+          sed -i "s|<FileVersion>.*</FileVersion>|<FileVersion>$VERSION.0</FileVersion>|g" "$PROJECT_FILE"
+        else
+          # Add version properties after ApplicationIcon
+          sed -i "/<ApplicationIcon>.*<\/ApplicationIcon>/a\\    <Version>$VERSION</Version>\\n    <AssemblyVersion>$VERSION.0</AssemblyVersion>\\n    <FileVersion>$VERSION.0</FileVersion>" "$PROJECT_FILE"
+        fi
+        
+        echo "✅ Updated project file"
+
+    - name: Update installer scripts
+      if: github.event.inputs.update_installers == 'true'
+      run: |
+        VERSION="${{ github.event.inputs.version }}"
+        
+        # Update PowerShell installer
+        if [ -f "installer/Install-WallpaperChanger.ps1" ]; then
+          echo "📝 Updating PowerShell installer..."
+          sed -i "s/\$script:AppVersion = \".*\"/\$script:AppVersion = \"$VERSION\"/g" installer/Install-WallpaperChanger.ps1
+          echo "✅ Updated PowerShell installer"
+        fi
+        
+        # Update WiX installer
+        if [ -f "installer/WallpaperChanger.wxs" ]; then
+          echo "📝 Updating WiX installer..."
+          sed -i "s/Version=\"[0-9]\+\.[0-9]\+\.[0-9]\+\.[0-9]\+\"/Version=\"$VERSION.0\"/g" installer/WallpaperChanger.wxs
+          echo "✅ Updated WiX installer"
+        fi
+        
+        # Update NSIS installer
+        if [ -f "installer/WallpaperChanger.nsi" ]; then
+          echo "📝 Updating NSIS installer..."
+          sed -i "s/VIProductVersion \"[0-9]\+\.[0-9]\+\.[0-9]\+\.[0-9]\+\"/VIProductVersion \"$VERSION.0\"/g" installer/WallpaperChanger.nsi
+          sed -i "s/FileVersion\" \"[0-9]\+\.[0-9]\+\.[0-9]\+\.[0-9]\+\"/FileVersion\" \"$VERSION.0\"/g" installer/WallpaperChanger.nsi
+          sed -i "s/ProductVersion\" \"[0-9]\+\.[0-9]\+\.[0-9]\+\.[0-9]\+\"/ProductVersion\" \"$VERSION.0\"/g" installer/WallpaperChanger.nsi
+          sed -i "s/DisplayVersion\" \"[0-9]\+\.[0-9]\+\.[0-9]\+\"/DisplayVersion\" \"$VERSION\"/g" installer/WallpaperChanger.nsi
+          sed -i "s/OutFile \"WallpaperChanger-Setup-v[0-9]\+\.[0-9]\+\.[0-9]\+\.exe\"/OutFile \"WallpaperChanger-Setup-v$VERSION.exe\"/g" installer/WallpaperChanger.nsi
+          echo "✅ Updated NSIS installer"
+        fi
+        
+        # Update build scripts
+        if [ -f "installer/Build-All-Installers.ps1" ]; then
+          echo "📝 Updating build scripts..."
+          sed -i "s/\$Version = \"[0-9]\+\.[0-9]\+\.[0-9]\+\"/\$Version = \"$VERSION\"/g" installer/Build-All-Installers.ps1
+          echo "✅ Updated build scripts"
+        fi
+        
+        if [ -f "installer/Build-MSI.ps1" ]; then
+          sed -i "s/\$Version = \"[0-9]\+\.[0-9]\+\.[0-9]\+\"/\$Version = \"$VERSION\"/g" installer/Build-MSI.ps1
+        fi
+        
+        if [ -f "installer/Build-NSIS.ps1" ]; then
+          sed -i "s/\$Version = \"[0-9]\+\.[0-9]\+\.[0-9]\+\"/\$Version = \"$VERSION\"/g" installer/Build-NSIS.ps1
+        fi
+
+    - name: Update CI/CD workflows
+      if: github.event.inputs.update_workflows == 'true'
+      run: |
+        VERSION="${{ github.event.inputs.version }}"
+        
+        # Update CI workflow
+        if [ -f ".github/workflows/ci.yml" ]; then
+          echo "📝 Updating CI workflow..."
+          sed -i "s/APP_VERSION: '[0-9]\+\.[0-9]\+\.[0-9]\+'/APP_VERSION: '$VERSION'/g" .github/workflows/ci.yml
+          echo "✅ Updated CI workflow"
+        fi
+        
+        # Update other workflow files if they contain version references
+        find .github/workflows -name "*.yml" -exec grep -l "version.*[0-9]\+\.[0-9]\+\.[0-9]\+" {} \; | while read -r file; do
+          echo "📝 Checking $file for version references..."
+          # Add specific updates here if needed
+        done
+
+    - name: Update README and documentation
+      run: |
+        VERSION="${{ github.event.inputs.version }}"
+        
+        # Update README if it contains version references
+        if [ -f "README.md" ] && grep -q "version" README.md; then
+          echo "📝 Updating README.md..."
+          # Update version badges or references in README
+          sed -i "s/v[0-9]\+\.[0-9]\+\.[0-9]\+/v$VERSION/g" README.md
+          echo "✅ Updated README.md"
+        fi
+        
+        # Update installer README
+        if [ -f "installer/README.md" ]; then
+          echo "📝 Updating installer README..."
+          sed -i "s/v[0-9]\+\.[0-9]\+\.[0-9]\+/v$VERSION/g" installer/README.md
+          echo "✅ Updated installer README"
+        fi
+
+    - name: Create or update RELEASE_NOTES.md
+      run: |
+        VERSION="${{ github.event.inputs.version }}"
+        DATE=$(date +"%Y-%m-%d")
+        
+        # Create release notes template
+        cat > RELEASE_NOTES.md << EOF
+# Wallpaper Changer v$VERSION
+
+Released: $DATE
+
+## What's New
+
+### ✨ New Features
+- [Add new features here]
+
+### 🐛 Bug Fixes
+- [Add bug fixes here]
+
+### 🔧 Improvements
+- [Add improvements here]
+
+### 📦 Installation
+- **PowerShell Installer**: Recommended for most users
+- **MSI Installer**: For enterprise environments
+- **NSIS Installer**: Lightweight alternative
+- **Batch Installer**: Simple installation option
+
+### 📋 Requirements
+- Windows 10 or later
+- .NET 9.0 Runtime (for framework-dependent builds)
+
+### 🔗 Downloads
+- Framework-dependent build (requires .NET 9.0)
+- Self-contained build (no .NET required)
+- Multiple installer options available
+
+---
+
+**Full Changelog**: https://github.com/asifthewebguy/wallpaper0-changer/compare/v[PREVIOUS_VERSION]...v$VERSION
+EOF
+        
+        echo "✅ Created RELEASE_NOTES.md template"
+
+    - name: Show changes summary
+      run: |
+        echo "📋 Summary of changes:"
+        echo ""
+        git diff --name-only | while read -r file; do
+          echo "📝 Modified: $file"
+        done
+        echo ""
+        echo "🔍 Version references updated to: ${{ github.event.inputs.version }}"
+
+    - name: Create Pull Request
+      if: github.event.inputs.create_pr == 'true'
+      run: |
+        VERSION="${{ github.event.inputs.version }}"
+        BRANCH_NAME="update-version-$VERSION"
+        
+        # Configure git
+        git config user.name "github-actions[bot]"
+        git config user.email "github-actions[bot]@users.noreply.github.com"
+        
+        # Create and switch to new branch
+        git checkout -b "$BRANCH_NAME"
+        
+        # Add all changes
+        git add .
+        
+        # Commit changes
+        git commit -m "chore: update version to $VERSION
+
+        - Updated project file version
+        - Updated installer scripts
+        - Updated CI/CD workflows
+        - Updated documentation
+        - Created release notes template"
+        
+        # Push branch
+        git push origin "$BRANCH_NAME"
+        
+        # Create pull request
+        gh pr create \
+          --title "🔖 Update version to $VERSION" \
+          --body "This PR updates the version across all project files to \`$VERSION\`.
+
+        ## Changes Made
+        - ✅ Updated \`WallpaperChanger.csproj\` with new version
+        - ✅ Updated installer scripts
+        - ✅ Updated CI/CD workflows
+        - ✅ Updated documentation
+        - ✅ Created release notes template
+
+        ## Next Steps
+        1. Review and edit \`RELEASE_NOTES.md\` with actual changes
+        2. Merge this PR
+        3. Create a release using the release workflow
+
+        **Version**: \`$VERSION\`" \
+          --head "$BRANCH_NAME" \
+          --base "master"
+        
+        echo "✅ Created pull request for version update"
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Commit changes directly
+      if: github.event.inputs.create_pr == 'false'
+      run: |
+        VERSION="${{ github.event.inputs.version }}"
+        
+        # Configure git
+        git config user.name "github-actions[bot]"
+        git config user.email "github-actions[bot]@users.noreply.github.com"
+        
+        # Add all changes
+        git add .
+        
+        # Check if there are changes to commit
+        if git diff --staged --quiet; then
+          echo "ℹ️ No changes to commit"
+        else
+          # Commit changes
+          git commit -m "chore: update version to $VERSION"
+          
+          # Push changes
+          git push origin master
+          
+          echo "✅ Committed changes directly to master"
+        fi

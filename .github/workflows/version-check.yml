@@ -1,0 +1,211 @@
+name: Version Check
+
+on:
+  pull_request:
+    branches: [ master ]
+    paths:
+      - 'WallpaperChanger/WallpaperChanger.csproj'
+      - 'installer/**'
+      - '.github/workflows/**'
+
+jobs:
+  check-version-consistency:
+    name: Check Version Consistency
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0  # Fetch all history for version comparison
+
+    - name: Check version consistency
+      shell: bash
+      run: |
+        echo "🔍 Checking version consistency across the project..."
+        
+        # Extract version from project file
+        PROJECT_VERSION=""
+        if grep -q "<Version>" WallpaperChanger/WallpaperChanger.csproj; then
+          PROJECT_VERSION=$(grep -oP '<Version>\K[^<]+' WallpaperChanger/WallpaperChanger.csproj)
+        fi
+        
+        # Check installer scripts for version references
+        INSTALLER_VERSIONS=()
+        
+        # Check PowerShell installer
+        if [ -f "installer/Install-WallpaperChanger.ps1" ]; then
+          POWERSHELL_VERSION=$(grep -oP '\$script:AppVersion = "\K[^"]+' installer/Install-WallpaperChanger.ps1 || echo "")
+          if [ -n "$POWERSHELL_VERSION" ]; then
+            INSTALLER_VERSIONS+=("PowerShell:$POWERSHELL_VERSION")
+          fi
+        fi
+        
+        # Check WiX installer
+        if [ -f "installer/WallpaperChanger.wxs" ]; then
+          WIX_VERSION=$(grep -oP 'Version="\K[^"]+' installer/WallpaperChanger.wxs | head -1 || echo "")
+          if [ -n "$WIX_VERSION" ]; then
+            INSTALLER_VERSIONS+=("WiX:$WIX_VERSION")
+          fi
+        fi
+        
+        # Check NSIS installer
+        if [ -f "installer/WallpaperChanger.nsi" ]; then
+          NSIS_VERSION=$(grep -oP 'VIProductVersion "\K[^"]+' installer/WallpaperChanger.nsi || echo "")
+          if [ -n "$NSIS_VERSION" ]; then
+            INSTALLER_VERSIONS+=("NSIS:$NSIS_VERSION")
+          fi
+        fi
+        
+        # Check build scripts
+        if [ -f "installer/Build-All-Installers.ps1" ]; then
+          BUILD_VERSION=$(grep -oP '\$Version = "\K[^"]+' installer/Build-All-Installers.ps1 || echo "")
+          if [ -n "$BUILD_VERSION" ]; then
+            INSTALLER_VERSIONS+=("BuildScript:$BUILD_VERSION")
+          fi
+        fi
+        
+        # Check CI workflow
+        if [ -f ".github/workflows/ci.yml" ]; then
+          CI_VERSION=$(grep -oP 'APP_VERSION: '\''\K[^'\'']+' .github/workflows/ci.yml || echo "")
+          if [ -n "$CI_VERSION" ]; then
+            INSTALLER_VERSIONS+=("CI:$CI_VERSION")
+          fi
+        fi
+        
+        echo "📋 Found versions:"
+        echo "Project file: ${PROJECT_VERSION:-'Not set'}"
+        for version in "${INSTALLER_VERSIONS[@]}"; do
+          echo "  $version"
+        done
+        
+        # Check for inconsistencies
+        INCONSISTENT=false
+        
+        if [ -n "$PROJECT_VERSION" ]; then
+          for version_entry in "${INSTALLER_VERSIONS[@]}"; do
+            version_value="${version_entry#*:}"
+            version_source="${version_entry%:*}"
+            
+            # Remove .0 suffix for comparison (e.g., 1.1.0.0 -> 1.1.0)
+            normalized_project="${PROJECT_VERSION%.0}"
+            normalized_installer="${version_value%.0}"
+            
+            if [ "$normalized_project" != "$normalized_installer" ]; then
+              echo "❌ Version mismatch: Project ($PROJECT_VERSION) vs $version_source ($version_value)"
+              INCONSISTENT=true
+            fi
+          done
+        fi
+        
+        # Check against latest release
+        LATEST_RELEASE=$(gh release list --limit 1 --json tagName --jq '.[0].tagName' 2>/dev/null || echo "")
+        if [ -n "$LATEST_RELEASE" ]; then
+          LATEST_VERSION="${LATEST_RELEASE#v}"
+          echo "📦 Latest release: $LATEST_VERSION"
+          
+          if [ -n "$PROJECT_VERSION" ]; then
+            # Simple version comparison (assumes semantic versioning)
+            if [ "$PROJECT_VERSION" = "$LATEST_VERSION" ]; then
+              echo "⚠️  Warning: Project version ($PROJECT_VERSION) matches latest release ($LATEST_VERSION)"
+              echo "Consider incrementing the version for new changes."
+            fi
+          fi
+        fi
+        
+        if [ "$INCONSISTENT" = true ]; then
+          echo ""
+          echo "💡 To fix version inconsistencies:"
+          echo "1. Update the version in WallpaperChanger/WallpaperChanger.csproj"
+          echo "2. Update installer scripts to match"
+          echo "3. Update CI/CD workflows if needed"
+          echo ""
+          exit 1
+        else
+          echo "✅ All versions are consistent!"
+        fi
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  suggest-next-version:
+    name: Suggest Next Version
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Analyze changes and suggest version
+      shell: bash
+      run: |
+        echo "🔍 Analyzing changes to suggest next version..."
+        
+        # Get current version from project file
+        CURRENT_VERSION=""
+        if grep -q "<Version>" WallpaperChanger/WallpaperChanger.csproj; then
+          CURRENT_VERSION=$(grep -oP '<Version>\K[^<]+' WallpaperChanger/WallpaperChanger.csproj)
+        fi
+        
+        # Get latest release version
+        LATEST_RELEASE=$(gh release list --limit 1 --json tagName --jq '.[0].tagName' 2>/dev/null || echo "")
+        LATEST_VERSION="${LATEST_RELEASE#v}"
+        
+        echo "Current project version: ${CURRENT_VERSION:-'Not set'}"
+        echo "Latest release version: ${LATEST_VERSION:-'No releases'}"
+        
+        # Analyze changed files
+        CHANGED_FILES=$(git diff --name-only origin/master...HEAD)
+        echo ""
+        echo "📝 Changed files:"
+        echo "$CHANGED_FILES"
+        
+        # Categorize changes
+        BREAKING_CHANGES=false
+        NEW_FEATURES=false
+        BUG_FIXES=false
+        
+        # Check for breaking changes
+        if echo "$CHANGED_FILES" | grep -qE "(Program\.cs|Form1\.cs|.*\.csproj)"; then
+          echo "🔥 Potential breaking changes detected in core files"
+          BREAKING_CHANGES=true
+        fi
+        
+        # Check for new features
+        if echo "$CHANGED_FILES" | grep -qE "(installer/|\.github/workflows/)"; then
+          echo "✨ New features detected (installers, workflows)"
+          NEW_FEATURES=true
+        fi
+        
+        # Check for bug fixes
+        if echo "$CHANGED_FILES" | grep -qE "(\.cs$|\.md$)"; then
+          echo "🐛 Potential bug fixes detected"
+          BUG_FIXES=true
+        fi
+        
+        # Suggest version increment
+        if [ -n "$LATEST_VERSION" ]; then
+          IFS='.' read -ra VERSION_PARTS <<< "$LATEST_VERSION"
+          MAJOR=${VERSION_PARTS[0]:-0}
+          MINOR=${VERSION_PARTS[1]:-0}
+          PATCH=${VERSION_PARTS[2]:-0}
+          
+          if [ "$BREAKING_CHANGES" = true ]; then
+            SUGGESTED_VERSION="$((MAJOR + 1)).0.0"
+            echo "💡 Suggested version: $SUGGESTED_VERSION (major increment due to breaking changes)"
+          elif [ "$NEW_FEATURES" = true ]; then
+            SUGGESTED_VERSION="$MAJOR.$((MINOR + 1)).0"
+            echo "💡 Suggested version: $SUGGESTED_VERSION (minor increment due to new features)"
+          elif [ "$BUG_FIXES" = true ]; then
+            SUGGESTED_VERSION="$MAJOR.$MINOR.$((PATCH + 1))"
+            echo "💡 Suggested version: $SUGGESTED_VERSION (patch increment due to bug fixes)"
+          else
+            echo "💡 No significant changes detected, version increment may not be needed"
+          fi
+        else
+          echo "💡 Suggested initial version: 1.0.0"
+        fi
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

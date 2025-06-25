@@ -49,3 +49,7 @@ artifacts/
 
 # Local cache directory
 **/Cache/
+
+# Test Results
+TestResults/
+**/TestResults/

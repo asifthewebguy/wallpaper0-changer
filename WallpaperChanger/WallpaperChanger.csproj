@@ -7,6 +7,13 @@
     <UseWindowsForms>true</UseWindowsForms>
     <ImplicitUsings>enable</ImplicitUsings>
     <ApplicationIcon>Resources\wallpaper_icon.ico</ApplicationIcon>
+    <Version>1.1.0</Version>
+    <AssemblyVersion>1.1.0.0</AssemblyVersion>
+    <FileVersion>1.1.0.0</FileVersion>
+    <Product>Wallpaper Changer</Product>
+    <Company>ATWG</Company>
+    <Copyright>© 2024 ATWG</Copyright>
+    <Description>Desktop wallpaper changer with web protocol support</Description>
   </PropertyGroup>
 
   <ItemGroup>

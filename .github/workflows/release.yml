@@ -4,11 +4,65 @@ on:
   push:
     tags:
       - 'v*' # Push events to matching v*, i.e. v1.0, v20.15.10
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Release version (e.g., 1.1.0)'
+        required: true
+        type: string
+      prerelease:
+        description: 'Mark as pre-release'
+        required: false
+        type: boolean
+        default: false
+
+env:
+  DOTNET_VERSION: '9.0.x'
+  BUILD_CONFIGURATION: 'Release'
 
 jobs:
-  build:
-    name: Create Release
+  validate-version:
+    name: Validate Version
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      tag: ${{ steps.version.outputs.tag }}
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Determine version
+      id: version
+      run: |
+        if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+          VERSION="${{ github.event.inputs.version }}"
+          TAG="v${VERSION}"
+        else
+          TAG="${{ github.ref_name }}"
+          VERSION="${TAG#v}"
+        fi
+
+        echo "version=${VERSION}" >> $GITHUB_OUTPUT
+        echo "tag=${TAG}" >> $GITHUB_OUTPUT
+        echo "Version: ${VERSION}"
+        echo "Tag: ${TAG}"
+
+    - name: Check if release exists
+      run: |
+        if gh release view "${{ steps.version.outputs.tag }}" >/dev/null 2>&1; then
+          echo "❌ Release ${{ steps.version.outputs.tag }} already exists!"
+          exit 1
+        else
+          echo "✅ Release ${{ steps.version.outputs.tag }} does not exist, proceeding..."
+        fi
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  build-and-test:
+    name: Build and Test
     runs-on: windows-latest
+    needs: validate-version
 
     steps:
     - name: Checkout code
@@ -17,49 +71,129 @@ jobs:
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: '9.0.x'
+        dotnet-version: ${{ env.DOTNET_VERSION }}
+
+    - name: Cache NuGet packages
+      uses: actions/cache@v4
+      with:
+        path: ~/.nuget/packages
+        key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj') }}
+        restore-keys: |
+          ${{ runner.os }}-nuget-
+
+    - name: Update version in project file
+      shell: pwsh
+      run: |
+        $version = "${{ needs.validate-version.outputs.version }}"
+        $projectFile = "WallpaperChanger/WallpaperChanger.csproj"
+
+        $content = Get-Content $projectFile -Raw
+
+        # Add version properties if they don't exist
+        if ($content -notmatch '<Version>') {
+          $content = $content -replace '(<ApplicationIcon>.*</ApplicationIcon>)', "`$1`n    <Version>$version</Version>`n    <AssemblyVersion>$version.0</AssemblyVersion>`n    <FileVersion>$version.0</FileVersion>"
+        } else {
+          $content = $content -replace '<Version>.*</Version>', "<Version>$version</Version>"
+          $content = $content -replace '<AssemblyVersion>.*</AssemblyVersion>', "<AssemblyVersion>$version.0</AssemblyVersion>"
+          $content = $content -replace '<FileVersion>.*</FileVersion>', "<FileVersion>$version.0</FileVersion>"
+        }
+
+        Set-Content $projectFile $content
+        Write-Host "Updated project file with version $version"
 
     - name: Restore dependencies
       run: dotnet restore
 
-    - name: Build
-      run: dotnet build --no-restore --configuration Release
+    - name: Build framework-dependent
+      run: dotnet build --no-restore --configuration ${{ env.BUILD_CONFIGURATION }}
 
-    - name: Test
-      run: dotnet test --no-build --verbosity normal --configuration Release
-      continue-on-error: true  # Allow tests to fail for now until we have proper test setup
+    - name: Run tests
+      run: dotnet test --no-build --verbosity normal --configuration ${{ env.BUILD_CONFIGURATION }}
 
-    - name: Create Release Package
+    - name: Build self-contained
+      run: dotnet publish WallpaperChanger --configuration ${{ env.BUILD_CONFIGURATION }} --self-contained true --runtime win-x64 --output publish
+
+    - name: Upload self-contained build
+      uses: actions/upload-artifact@v4
+      with:
+        name: WallpaperChanger-self-contained-${{ needs.validate-version.outputs.version }}
+        path: publish/
+
+  build-installers:
+    name: Build Installers
+    runs-on: windows-latest
+    needs: [validate-version, build-and-test]
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Download self-contained build
+      uses: actions/download-artifact@v4
+      with:
+        name: WallpaperChanger-self-contained-${{ needs.validate-version.outputs.version }}
+        path: publish/
+
+    - name: Install WiX Toolset
+      run: dotnet tool install --global wix --version 5.0.1
+
+    - name: Build all installers
       shell: pwsh
       run: |
-        # Get version from tag
-        $version = $env:GITHUB_REF -replace 'refs/tags/v', ''
+        cd installer
+        .\Build-All-Installers.ps1 -Version "${{ needs.validate-version.outputs.version }}" -SourceDir "..\publish"
+
+    - name: Upload installers
+      uses: actions/upload-artifact@v4
+      with:
+        name: WallpaperChanger-installers-${{ needs.validate-version.outputs.version }}
+        path: installer/output/
+
+  create-release:
+    name: Create GitHub Release
+    runs-on: windows-latest
+    needs: [validate-version, build-and-test, build-installers]
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Download self-contained build
+      uses: actions/download-artifact@v4
+      with:
+        name: WallpaperChanger-self-contained-${{ needs.validate-version.outputs.version }}
+        path: publish/
+
+    - name: Download installers
+      uses: actions/download-artifact@v4
+      with:
+        name: WallpaperChanger-installers-${{ needs.validate-version.outputs.version }}
+        path: installer-output/
+
+    - name: Create legacy release package
+      shell: pwsh
+      run: |
+        $version = "${{ needs.validate-version.outputs.version }}"
 
         # Create output directory
-        $outputDir = "release"
-        if (-not (Test-Path $outputDir)) {
-            New-Item -Path $outputDir -ItemType Directory -Force | Out-Null
-        }
+        $outputDir = "release-packages"
+        New-Item -Path $outputDir -ItemType Directory -Force | Out-Null
 
-        # Define the release package name
-        $releasePackage = Join-Path -Path $outputDir -ChildPath "WallpaperChanger-v$version.zip"
-
-        # Create a temporary directory for the release files
-        $tempDir = Join-Path -Path $outputDir -ChildPath "temp"
-        if (Test-Path $tempDir) {
-            Remove-Item -Path $tempDir -Recurse -Force
-        }
+        # Create legacy package (framework-dependent)
+        $legacyPackage = Join-Path -Path $outputDir -ChildPath "WallpaperChanger-v$version.zip"
+        $tempDir = Join-Path -Path $outputDir -ChildPath "temp-legacy"
         New-Item -Path $tempDir -ItemType Directory -Force | Out-Null
 
-        # Copy files to the temporary directory
-        Copy-Item -Path "WallpaperChanger\bin\Release\net9.0-windows\WallpaperChanger.exe" -Destination $tempDir -Force
-        Copy-Item -Path "WallpaperChanger\bin\Release\net9.0-windows\WallpaperChanger.dll" -Destination $tempDir -Force
-        Copy-Item -Path "WallpaperChanger\bin\Release\net9.0-windows\WallpaperChanger.runtimeconfig.json" -Destination $tempDir -Force
+        # Copy framework-dependent files (smaller package)
+        Copy-Item -Path "publish\WallpaperChanger.exe" -Destination $tempDir -Force
+        Copy-Item -Path "publish\WallpaperChanger.dll" -Destination $tempDir -Force
+        Copy-Item -Path "publish\WallpaperChanger.runtimeconfig.json" -Destination $tempDir -Force
+        Copy-Item -Path "publish\WallpaperChanger.deps.json" -Destination $tempDir -Force
 
         # Create Resources directory and copy icon
         $resourcesDir = Join-Path -Path $tempDir -ChildPath "Resources"
         New-Item -Path $resourcesDir -ItemType Directory -Force | Out-Null
-        Copy-Item -Path "WallpaperChanger\bin\Release\net9.0-windows\Resources\wallpaper_icon.ico" -Destination $resourcesDir -Force
+        Copy-Item -Path "publish\Resources\wallpaper_icon.ico" -Destination $resourcesDir -Force
 
         # Copy scripts and documentation
         Copy-Item -Path "install.ps1" -Destination $tempDir -Force
@@ -71,28 +205,47 @@ jobs:
         Copy-Item -Path "RELEASE_NOTES.md" -Destination $tempDir -Force
 
         # Create the zip file
-        if (Test-Path $releasePackage) {
-            Remove-Item -Path $releasePackage -Force
-        }
-
         Add-Type -AssemblyName System.IO.Compression.FileSystem
-        [System.IO.Compression.ZipFile]::CreateFromDirectory($tempDir, $releasePackage)
-
-        # Clean up
+        [System.IO.Compression.ZipFile]::CreateFromDirectory($tempDir, $legacyPackage)
         Remove-Item -Path $tempDir -Recurse -Force
 
-        # Set output variable for the release asset path
-        echo "RELEASE_ASSET=$releasePackage" | Out-File -FilePath $env:GITHUB_ENV -Append
+        # Create self-contained package
+        $selfContainedPackage = Join-Path -Path $outputDir -ChildPath "WallpaperChanger-Standalone-v$version.zip"
+        $tempDir2 = Join-Path -Path $outputDir -ChildPath "temp-standalone"
+        New-Item -Path $tempDir2 -ItemType Directory -Force | Out-Null
+
+        # Copy all self-contained files
+        Copy-Item -Path "publish\*" -Destination $tempDir2 -Recurse -Force
+
+        # Copy scripts and documentation
+        Copy-Item -Path "install.ps1" -Destination $tempDir2 -Force
+        Copy-Item -Path "register_protocol.ps1" -Destination $tempDir2 -Force
+        Copy-Item -Path "register_protocol_user.ps1" -Destination $tempDir2 -Force
+        Copy-Item -Path "test_protocol.html" -Destination $tempDir2 -Force
+        Copy-Item -Path "README.md" -Destination $tempDir2 -Force
+        Copy-Item -Path "logo-120.png" -Destination $tempDir2 -Force
+        Copy-Item -Path "RELEASE_NOTES.md" -Destination $tempDir2 -Force
+
+        # Create the self-contained zip file
+        [System.IO.Compression.ZipFile]::CreateFromDirectory($tempDir2, $selfContainedPackage)
+        Remove-Item -Path $tempDir2 -Recurse -Force
+
+        Write-Host "Created release packages:"
+        Write-Host "- Legacy: $legacyPackage"
+        Write-Host "- Self-contained: $selfContainedPackage"
 
     - name: Create Release
-      id: create_release
       uses: softprops/action-gh-release@v2
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        tag_name: ${{ github.ref }}
-        name: Wallpaper Changer ${{ github.ref_name }}
+        tag_name: ${{ needs.validate-version.outputs.tag }}
+        name: Wallpaper Changer ${{ needs.validate-version.outputs.tag }}
         body_path: RELEASE_NOTES.md
         draft: false
-        prerelease: false
-        files: ${{ env.RELEASE_ASSET }}
+        prerelease: ${{ github.event.inputs.prerelease == 'true' }}
+        files: |
+          release-packages/*.zip
+          installer-output/*.zip
+          installer-output/*.exe
+          installer-output/*.msi

@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+  
+  <!-- Product definition -->
+  <Product Id="*" 
+           Name="Wallpaper Changer" 
+           Language="1033" 
+           Version="1.1.0.0" 
+           Manufacturer="ATWG" 
+           UpgradeCode="12345678-1234-1234-1234-123456789012">
+    
+    <!-- Package information -->
+    <Package InstallerVersion="200" 
+             Compressed="yes" 
+             InstallScope="perMachine"
+             Description="Desktop wallpaper changer with web protocol support"
+             Comments="Wallpaper Changer v1.1.0"
+             Manufacturer="ATWG" />
+
+    <!-- Media and cab file -->
+    <MajorUpgrade DowngradeErrorMessage="A newer version of [ProductName] is already installed." />
+    <MediaTemplate EmbedCab="yes" />
+
+    <!-- Features -->
+    <Feature Id="ProductFeature" Title="Wallpaper Changer" Level="1">
+      <ComponentGroupRef Id="ProductComponents" />
+      <ComponentRef Id="ProtocolRegistration" />
+      <ComponentRef Id="StartMenuShortcut" />
+      <ComponentRef Id="DesktopShortcut" />
+    </Feature>
+
+    <!-- Installation directory structure -->
+    <Directory Id="TARGETDIR" Name="SourceDir">
+      <Directory Id="ProgramFilesFolder">
+        <Directory Id="INSTALLFOLDER" Name="WallpaperChanger" />
+      </Directory>
+      
+      <!-- Start Menu -->
+      <Directory Id="ProgramMenuFolder">
+        <Directory Id="ApplicationProgramsFolder" Name="Wallpaper Changer" />
+      </Directory>
+      
+      <!-- Desktop -->
+      <Directory Id="DesktopFolder" Name="Desktop" />
+    </Directory>
+
+    <!-- Components -->
+    <ComponentGroup Id="ProductComponents" Directory="INSTALLFOLDER">
+      
+      <!-- Main executable -->
+      <Component Id="MainExecutable" Guid="*">
+        <File Id="WallpaperChangerExe" 
+              Source="$(var.SourceDir)\WallpaperChanger.exe" 
+              KeyPath="yes" />
+      </Component>
+      
+      <!-- Application DLL -->
+      <Component Id="ApplicationDLL" Guid="*">
+        <File Id="WallpaperChangerDll" 
+              Source="$(var.SourceDir)\WallpaperChanger.dll" />
+      </Component>
+      
+      <!-- Runtime configuration -->
+      <Component Id="RuntimeConfig" Guid="*">
+        <File Id="RuntimeConfigJson" 
+              Source="$(var.SourceDir)\WallpaperChanger.runtimeconfig.json" />
+      </Component>
+      
+      <!-- Dependencies JSON -->
+      <Component Id="DependenciesConfig" Guid="*">
+        <File Id="DependenciesJson" 
+              Source="$(var.SourceDir)\WallpaperChanger.deps.json" />
+      </Component>
+      
+      <!-- PDB file for debugging -->
+      <Component Id="DebugSymbols" Guid="*">
+        <File Id="WallpaperChangerPdb" 
+              Source="$(var.SourceDir)\WallpaperChanger.pdb" />
+      </Component>
+      
+      <!-- Resources directory -->
+      <Component Id="ResourcesDirectory" Guid="*">
+        <CreateFolder />
+        <File Id="WallpaperIcon" 
+              Source="$(var.SourceDir)\Resources\wallpaper_icon.ico" />
+      </Component>
+      
+    </ComponentGroup>
+
+    <!-- Protocol registration component -->
+    <Component Id="ProtocolRegistration" Directory="INSTALLFOLDER" Guid="*">
+      <RegistryKey Root="HKLM" Key="SOFTWARE\Classes\wallpaper0-changer">
+        <RegistryValue Type="string" Value="URL:Wallpaper Changer Protocol" />
+        <RegistryValue Name="URL Protocol" Type="string" Value="" />
+      </RegistryKey>
+      
+      <RegistryKey Root="HKLM" Key="SOFTWARE\Classes\wallpaper0-changer\DefaultIcon">
+        <RegistryValue Type="string" Value="[INSTALLFOLDER]WallpaperChanger.exe,0" />
+      </RegistryKey>
+      
+      <RegistryKey Root="HKLM" Key="SOFTWARE\Classes\wallpaper0-changer\shell\open\command">
+        <RegistryValue Type="string" Value="&quot;[INSTALLFOLDER]WallpaperChanger.exe&quot; &quot;%1&quot;" />
+      </RegistryKey>
+    </Component>
+
+    <!-- Start Menu shortcut -->
+    <Component Id="StartMenuShortcut" Directory="ApplicationProgramsFolder" Guid="*">
+      <Shortcut Id="ApplicationStartMenuShortcut"
+                Name="Wallpaper Changer"
+                Description="Desktop wallpaper changer with web protocol support"
+                Target="[INSTALLFOLDER]WallpaperChanger.exe"
+                WorkingDirectory="INSTALLFOLDER"
+                Icon="WallpaperChangerIcon" />
+      <RemoveFolder Id="ApplicationProgramsFolder" On="uninstall" />
+      <RegistryValue Root="HKCU" 
+                     Key="Software\ATWG\WallpaperChanger" 
+                     Name="installed" 
+                     Type="integer" 
+                     Value="1" 
+                     KeyPath="yes" />
+    </Component>
+
+    <!-- Desktop shortcut -->
+    <Component Id="DesktopShortcut" Directory="DesktopFolder" Guid="*">
+      <Shortcut Id="ApplicationDesktopShortcut"
+                Name="Wallpaper Changer"
+                Description="Desktop wallpaper changer with web protocol support"
+                Target="[INSTALLFOLDER]WallpaperChanger.exe"
+                WorkingDirectory="INSTALLFOLDER"
+                Icon="WallpaperChangerIcon" />
+      <RegistryValue Root="HKCU" 
+                     Key="Software\ATWG\WallpaperChanger" 
+                     Name="desktop_shortcut" 
+                     Type="integer" 
+                     Value="1" 
+                     KeyPath="yes" />
+    </Component>
+
+    <!-- Icon definition -->
+    <Icon Id="WallpaperChangerIcon" SourceFile="$(var.SourceDir)\Resources\wallpaper_icon.ico" />
+    
+    <!-- Add/Remove Programs icon -->
+    <Property Id="ARPPRODUCTICON" Value="WallpaperChangerIcon" />
+    
+    <!-- Add/Remove Programs information -->
+    <Property Id="ARPHELPLINK" Value="https://github.com/asifthewebguy/wallpaper0-changer" />
+    <Property Id="ARPURLINFOABOUT" Value="https://github.com/asifthewebguy/wallpaper0-changer" />
+    <Property Id="ARPNOREPAIR" Value="1" />
+    <Property Id="ARPNOMODIFY" Value="1" />
+
+    <!-- UI -->
+    <UIRef Id="WixUI_InstallDir" />
+    <Property Id="WIXUI_INSTALLDIR" Value="INSTALLFOLDER" />
+    
+    <!-- License agreement -->
+    <WixVariable Id="WixUILicenseRtf" Value="license.rtf" />
+    
+    <!-- Custom actions for .NET runtime check -->
+    <Property Id="NETFRAMEWORK90">
+      <RegistrySearch Id="NetFramework90"
+                      Root="HKLM"
+                      Key="SOFTWARE\Microsoft\NET Framework Setup\NDP\v4\Full\"
+                      Name="Release"
+                      Type="raw" />
+    </Property>
+    
+    <!-- Launch condition for .NET -->
+    <Condition Message="This application requires .NET 9.0 or later. Please install .NET 9.0 Runtime and try again.">
+      <![CDATA[Installed OR NETFRAMEWORK90]]>
+    </Condition>
+
+  </Product>
+</Wix>
