@@ -16,6 +16,11 @@ on:
         type: boolean
         default: false
 
+permissions:
+  contents: write
+  packages: write
+  actions: read
+
 env:
   DOTNET_VERSION: '9.0.x'
   BUILD_CONFIGURATION: 'Release'

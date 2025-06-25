@@ -8,6 +8,10 @@ on:
       - 'installer/**'
       - '.github/workflows/**'
 
+permissions:
+  contents: read
+  actions: read
+
 jobs:
   check-version-consistency:
     name: Check Version Consistency
@@ -99,11 +103,14 @@ jobs:
         fi
         
         # Check against latest release
-        LATEST_RELEASE=$(gh release list --limit 1 --json tagName --jq '.[0].tagName' 2>/dev/null || echo "")
+        LATEST_RELEASE=$(curl -s -H "Authorization: token $GITHUB_TOKEN" \
+          "https://api.github.com/repos/$GITHUB_REPOSITORY/releases/latest" | \
+          grep -o '"tag_name": *"[^"]*"' | grep -o '"[^"]*"$' | tr -d '"' 2>/dev/null || echo "")
+
         if [ -n "$LATEST_RELEASE" ]; then
           LATEST_VERSION="${LATEST_RELEASE#v}"
           echo "📦 Latest release: $LATEST_VERSION"
-          
+
           if [ -n "$PROJECT_VERSION" ]; then
             # Simple version comparison (assumes semantic versioning)
             if [ "$PROJECT_VERSION" = "$LATEST_VERSION" ]; then
@@ -150,7 +157,9 @@ jobs:
         fi
         
         # Get latest release version
-        LATEST_RELEASE=$(gh release list --limit 1 --json tagName --jq '.[0].tagName' 2>/dev/null || echo "")
+        LATEST_RELEASE=$(curl -s -H "Authorization: token $GITHUB_TOKEN" \
+          "https://api.github.com/repos/$GITHUB_REPOSITORY/releases/latest" | \
+          grep -o '"tag_name": *"[^"]*"' | grep -o '"[^"]*"$' | tr -d '"' 2>/dev/null || echo "")
         LATEST_VERSION="${LATEST_RELEASE#v}"
         
         echo "Current project version: ${CURRENT_VERSION:-'Not set'}"

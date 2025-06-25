@@ -23,6 +23,12 @@ on:
         type: boolean
         default: true
 
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+  actions: read
+
 jobs:
   update-version:
     name: Update Version Across Project
@@ -47,13 +53,16 @@ jobs:
     - name: Check if version already exists
       run: |
         VERSION="${{ github.event.inputs.version }}"
-        if gh release view "v$VERSION" >/dev/null 2>&1; then
+
+        # Check if release exists using GitHub API
+        RESPONSE=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+          "https://api.github.com/repos/${{ github.repository }}/releases/tags/v$VERSION")
+
+        if echo "$RESPONSE" | grep -q '"tag_name"'; then
           echo "❌ Version v$VERSION already exists as a release!"
           exit 1
         fi
         echo "✅ Version v$VERSION is available"
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Update project file
       run: |
