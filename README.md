@@ -31,24 +31,47 @@ A Windows application that changes desktop wallpapers using images from aiwp.me 
 
 ## Latest Release
 
-The latest version is [Wallpaper Changer v1.0.0](https://github.com/asifthewebguy/wallpaper0-changer/releases/tag/v1.0.0), which includes:
+The latest version is [Wallpaper Changer v1.1.0](https://github.com/asifthewebguy/wallpaper0-changer/releases/latest), which includes:
 
+- Professional Inno Setup installer
+- Self-contained build (no .NET runtime required)
 - Custom logo icon
 - Improved system tray integration
-- Comprehensive installer with uninstaller
-- Enhanced protocol handler registration
+- Automatic protocol handler registration
+- Clean uninstallation support
 
-See the [Release Notes](https://github.com/asifthewebguy/wallpaper0-changer/releases/tag/v1.0.0) for more details.
+See the [Release Notes](RELEASE_NOTES.md) for more details.
 
 ## Installation
 
-### Easy Installation (Recommended)
+### Windows Installer (Recommended)
 
-1. Download the [latest release](https://github.com/asifthewebguy/wallpaper0-changer/releases/latest)
-2. Run the `install.ps1` script
-3. Follow the on-screen instructions
+**Download and run the installer:**
 
-The installer will:
+1. Go to the [latest release](https://github.com/asifthewebguy/wallpaper0-changer/releases/latest)
+2. Download `WallpaperChanger-Setup-v1.1.0.exe`
+3. Run the installer and follow the setup wizard
+
+**Features:**
+- No administrator rights required (installs for current user)
+- Optional system-wide installation (requires admin)
+- Automatic protocol handler registration
+- Start Menu shortcuts
+- Optional desktop icon and startup entry
+- Professional uninstaller
+
+**Note:** Windows SmartScreen may show a warning for unsigned installers. Click "More info" → "Run anyway" to proceed.
+
+### PowerShell Script Installation (Alternative)
+
+For advanced users or automated deployments:
+
+1. Download the [latest release package](https://github.com/asifthewebguy/wallpaper0-changer/releases/latest)
+2. Extract the ZIP file
+3. Run the `install.ps1` script in PowerShell
+4. Follow the on-screen instructions
+
+The script will:
 - Build the application (if needed)
 - Copy files to the installation directory
 - Create a Start Menu shortcut
@@ -57,10 +80,22 @@ The installer will:
 
 ### Manual Installation
 
-If you prefer to install manually:
+For developers or manual installation:
 
-1. Build the application in Release mode
-2. Run the `register_protocol.ps1` script with administrator privileges (or `register_protocol_user.ps1` for current user only)
+1. Build the application:
+   ```powershell
+   dotnet build -c Release
+   ```
+
+2. Register the protocol handler:
+   ```powershell
+   # For current user only
+   .\register_protocol_user.ps1
+
+   # For system-wide (requires admin)
+   .\register_protocol.ps1
+   ```
+
 3. The application will start automatically when you click on a `wallpaper0-changer:` link
 
 ## Usage
@@ -84,18 +119,27 @@ The application runs in the system tray. Right-click the icon to:
 
 ### Prerequisites
 
-- .NET 8.0 SDK
+- .NET 9.0 SDK
 - Windows 10 or later
+- Inno Setup 6 (for building installer)
 
 ### Building
 
-```
+Build the application:
+```powershell
 dotnet build -c Release
 ```
 
+Build the installer:
+```powershell
+.\build-installer.ps1
+```
+
+See [INSTALLER_GUIDE.md](INSTALLER_GUIDE.md) for detailed build instructions.
+
 ### Running
 
-```
+```powershell
 dotnet run
 ```
 
@@ -103,30 +147,51 @@ dotnet run
 
 ### Common Issues
 
+#### Windows SmartScreen Warning
+
+Windows may show a SmartScreen warning for unsigned installers:
+
+1. Click "More info"
+2. Click "Run anyway"
+3. Alternatively, see [INSTALLER_GUIDE.md](INSTALLER_GUIDE.md#code-signing) for code signing instructions
+
 #### Protocol Handler Not Working
 
 If clicking on `wallpaper0-changer:` links doesn't work:
 
 1. Make sure the application is installed correctly
-2. Run the registration script again (`register_protocol.ps1` or `register_protocol_user.ps1`)
-3. Restart your browser
-4. Check if your browser is blocking custom protocol handlers
+2. Restart your browser after installation
+3. Check Windows Registry: `HKCU\Software\Classes\wallpaper0-changer`
+4. Try reinstalling or running the installer as administrator
+5. Check if your browser is blocking custom protocol handlers
 
 #### Application Not Starting
 
 If the application doesn't start:
 
-1. Check if .NET Runtime is installed
-2. Try running the application as administrator
-3. Check Windows Event Viewer for any error messages
+1. Use the self-contained installer (includes .NET runtime)
+2. Check Windows Event Viewer for error messages
+3. Try running the application as administrator
+4. Verify antivirus isn't blocking the application
+
+#### Installation Issues
+
+For detailed troubleshooting and installation help:
+
+- See [INSTALLER_GUIDE.md](INSTALLER_GUIDE.md#troubleshooting)
+- Check installation logs (run installer with `/LOG="install.log"`)
 
 ### Getting Help
 
 If you encounter any issues:
 
 1. Check the [GitHub Issues](https://github.com/asifthewebguy/wallpaper0-changer/issues) to see if your problem has been reported
-2. Open a new issue with detailed information about your problem
-3. Include steps to reproduce the issue and any error messages
+2. Review the [Installer Guide](INSTALLER_GUIDE.md) for detailed documentation
+3. Open a new issue with:
+   - Windows version
+   - Installation method used
+   - Steps to reproduce
+   - Error messages or screenshots
 
 ## Contributing
 

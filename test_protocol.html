@@ -3,80 +3,159 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Wallpaper Changer Protocol Test</title>
+    <title>Wallpaper Changer - Protocol Test</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
             max-width: 800px;
             margin: 0 auto;
-            padding: 20px;
-            line-height: 1.6;
+            padding: 40px 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            color: #333;
         }
         h1 {
-            color: #333;
-            border-bottom: 2px solid #eee;
-            padding-bottom: 10px;
-        }
-        .link-container {
-            margin: 20px 0;
-            padding: 15px;
-            background-color: #f5f5f5;
-            border-radius: 5px;
-        }
-        a {
-            display: inline-block;
-            margin: 10px 5px;
-            padding: 10px 15px;
-            background-color: #4CAF50;
-            color: white;
-            text-decoration: none;
-            border-radius: 4px;
-            transition: background-color 0.3s;
-        }
-        a:hover {
-            background-color: #45a049;
-        }
-        .note {
-            margin-top: 30px;
-            padding: 15px;
-            background-color: #ffffd9;
-            border-left: 4px solid #ffeb3b;
-        }
-        .logo {
+            color: #667eea;
+            margin-top: 0;
             text-align: center;
-            margin: 20px 0;
         }
-        .logo img {
-            max-width: 120px;
-            height: auto;
+        .info-box {
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        .button {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 24px;
+            text-align: center;
+            text-decoration: none;
+            font-size: 16px;
+            margin: 8px 4px;
+            cursor: pointer;
+            border-radius: 6px;
+            border: none;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+        }
+        .button:active {
+            transform: translateY(0);
+        }
+        .test-section {
+            margin: 30px 0;
+            padding: 20px;
+            background: #fff;
+            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+        }
+        .test-section h3 {
+            color: #667eea;
+            margin-top: 0;
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            font-size: 14px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            box-sizing: border-box;
+            margin: 10px 0;
+        }
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #e0e0e0;
+            color: #666;
+            font-size: 14px;
         }
     </style>
 </head>
 <body>
-    <div class="logo">
-        <img src="logo-120.png" alt="Wallpaper Changer Logo">
+    <div class="container">
+        <h1>🎨 Wallpaper Changer Protocol Test</h1>
+
+        <div class="info-box">
+            <strong>How to use:</strong> Click any button below to test the <code>wallpaper0-changer:</code> protocol.
+            If the application is installed correctly, it will launch and attempt to set the wallpaper.
+        </div>
+
+        <div class="test-section">
+            <h3>Quick Test</h3>
+            <p>Click this button to test if the protocol handler is working:</p>
+            <a href="wallpaper0-changer:test" class="button">🧪 Test Protocol Handler</a>
+        </div>
+
+        <div class="test-section">
+            <h3>Sample Wallpapers</h3>
+            <p>Try these sample image IDs from aiwp.me:</p>
+            <a href="wallpaper0-changer:1" class="button">Wallpaper #1</a>
+            <a href="wallpaper0-changer:2" class="button">Wallpaper #2</a>
+            <a href="wallpaper0-changer:3" class="button">Wallpaper #3</a>
+            <a href="wallpaper0-changer:10" class="button">Wallpaper #10</a>
+        </div>
+
+        <div class="test-section">
+            <h3>Custom Image ID</h3>
+            <p>Enter a custom image ID to test:</p>
+            <input type="text" id="customId" placeholder="Enter image ID (e.g., 42)" />
+            <button class="button" onclick="testCustomId()">🚀 Launch with Custom ID</button>
+        </div>
+
+        <div class="info-box">
+            <strong>Troubleshooting:</strong>
+            <ul style="margin: 10px 0; padding-left: 20px;">
+                <li>If nothing happens, the application may not be installed</li>
+                <li>Browser may ask for permission to open the protocol</li>
+                <li>Check if the application is running in the system tray</li>
+                <li>Try restarting your browser after installation</li>
+            </ul>
+        </div>
+
+        <div class="footer">
+            <p>Wallpaper Changer v1.1.0</p>
+            <p>
+                <a href="https://github.com/asifthewebguy/wallpaper0-changer"
+                   style="color: #667eea; text-decoration: none;">
+                    View on GitHub
+                </a>
+            </p>
+        </div>
     </div>
 
-    <h1>Wallpaper Changer Protocol Test</h1>
+    <script>
+        function testCustomId() {
+            const customId = document.getElementById('customId').value.trim();
+            if (customId) {
+                window.location.href = 'wallpaper0-changer:' + customId;
+            } else {
+                alert('Please enter an image ID');
+            }
+        }
 
-    <div class="link-container">
-        <h2>Test Links</h2>
-        <p>Click on any of the links below to test the wallpaper0-changer protocol:</p>
-
-        <a href="wallpaper0-changer:005TN27O78.png">Set Wallpaper 1</a><br>
-        <a href="wallpaper0-changer:51NSZI5T5K.png">Set Wallpaper 2</a><br>
-        <a href="wallpaper0-changer:AAAA1111.png">Set Wallpaper 3 (Invalid ID)</a>
-    </div>
-
-    <div class="note">
-        <h3>Note:</h3>
-        <p>If clicking the links doesn't work, make sure:</p>
-        <ol>
-            <li>The application is built in Release mode</li>
-            <li>The protocol is registered (run register_protocol.ps1 as administrator)</li>
-            <li>The application is not already running (if it is, close it first)</li>
-        </ol>
-        <p>You may need to restart your browser after registering the protocol.</p>
-    </div>
+        // Allow Enter key to submit custom ID
+        document.getElementById('customId').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                testCustomId();
+            }
+        });
+    </script>
 </body>
 </html>

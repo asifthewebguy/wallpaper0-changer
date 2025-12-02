@@ -53,3 +53,8 @@ artifacts/
 # Test Results
 TestResults/
 **/TestResults/
+
+# Build output directories
+publish/
+release/
+installer/output/
