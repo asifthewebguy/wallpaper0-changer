@@ -10,6 +10,7 @@ on:
 permissions:
   contents: read
   actions: read
+  checks: write  # Required for test-reporter
 
 env:
   DOTNET_VERSION: '9.0.x'
@@ -72,8 +73,8 @@ jobs:
         name: WallpaperChanger-self-contained
         path: publish/
 
-  build-installers:
-    name: Build Installers
+  build-installer:
+    name: Build Inno Setup Installer
     runs-on: windows-latest
     needs: build-and-test
     if: github.event_name == 'push' && github.ref == 'refs/heads/master'
@@ -88,43 +89,42 @@ jobs:
         name: WallpaperChanger-self-contained
         path: publish/
 
-    - name: Install WiX Toolset
-      run: dotnet tool install --global wix --version 5.0.1
-
-    - name: Build PowerShell Installer
+    - name: Install Inno Setup
       shell: pwsh
       run: |
-        cd installer
-        .\Build-All-Installers.ps1 -BuildTypes "PowerShell" -Version "${{ env.APP_VERSION }}" -SourceDir "..\publish"
+        # Download and install Inno Setup
+        $innoSetupUrl = "https://jrsoftware.org/download.php/is.exe"
+        $installerPath = "$env:TEMP\innosetup.exe"
 
-    - name: Build NSIS Installer
+        Write-Host "Downloading Inno Setup..."
+        Invoke-WebRequest -Uri $innoSetupUrl -OutFile $installerPath
+
+        Write-Host "Installing Inno Setup..."
+        Start-Process -FilePath $installerPath -Args "/VERYSILENT /SUPPRESSMSGBOXES /NORESTART /SP-" -Wait
+
+        Write-Host "Inno Setup installed successfully"
+
+    - name: Build Inno Setup installer
       shell: pwsh
       run: |
-        # Install NSIS
-        winget install NSIS.NSIS --silent --accept-package-agreements --accept-source-agreements
+        $isccPath = "C:\Program Files (x86)\Inno Setup 6\ISCC.exe"
+        if (-not (Test-Path $isccPath)) {
+          Write-Error "ISCC.exe not found at $isccPath"
+          exit 1
+        }
 
-        # Add NSIS to PATH
-        $env:PATH += ";${env:ProgramFiles}\NSIS"
+        Write-Host "Building Inno Setup installer..."
+        & $isccPath "WallpaperChanger.iss"
 
-        cd installer
-        .\Build-All-Installers.ps1 -BuildTypes "NSIS" -Version "${{ env.APP_VERSION }}" -SourceDir "..\publish"
-      continue-on-error: true  # NSIS installation might fail in some environments
+        if ($LASTEXITCODE -ne 0) {
+          Write-Error "Inno Setup build failed"
+          exit 1
+        }
 
-    - name: Build MSI Installer
-      shell: pwsh
-      run: |
-        cd installer
-        .\Build-All-Installers.ps1 -BuildTypes "MSI" -Version "${{ env.APP_VERSION }}" -SourceDir "..\publish"
-      continue-on-error: true  # WiX might have issues in CI environment
+        Write-Host "Inno Setup installer built successfully"
 
-    - name: Build Batch Installer
-      shell: pwsh
-      run: |
-        cd installer
-        .\Build-All-Installers.ps1 -BuildTypes "Batch" -Version "${{ env.APP_VERSION }}" -SourceDir "..\publish"
-
-    - name: Upload installers
+    - name: Upload installer
       uses: actions/upload-artifact@v4
       with:
-        name: WallpaperChanger-installers
-        path: installer/output/
+        name: WallpaperChanger-installer
+        path: installer/output/InnoSetup/*.exe
