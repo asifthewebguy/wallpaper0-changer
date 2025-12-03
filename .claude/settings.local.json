@@ -2,7 +2,10 @@
   "permissions": {
     "allow": [
       "Bash(cat:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(git commit -m \"$(cat <<''EOF''\nRelease v1.1.3: Professional Inno Setup Installer\n\nMajor improvements:\n- Replaced legacy installers with professional Inno Setup\n- Self-contained build (includes .NET 9 runtime)\n- User-level installation (no admin required)\n- Smart uninstaller with automatic cleanup\n- Updated CI/CD workflows for Inno Setup\n- Fixed test-reporter permissions in CI\n- Comprehensive documentation and guides\n- Streamlined codebase (removed WiX, NSIS)\n\nGenerated with Claude Code\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")",
+      "Bash(git tag:*)",
+      "Bash(git push:*)"
     ],
     "deny": [],
     "ask": []

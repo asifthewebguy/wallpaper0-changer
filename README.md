@@ -21,15 +21,24 @@
 
 A Windows application that changes desktop wallpapers using images from aiwp.me via a custom URL protocol. Simply click on a `wallpaper0-changer:` link, and the application will download and set the wallpaper automatically.
 
-## Features
+## 📚 Documentation
 
-- Custom URL protocol handler (`wallpaper0-changer:`) for easy wallpaper setting
-- Downloads images from aiwp.me API
-- Sets desktop wallpaper using Windows API
-- Runs in the system tray with a custom logo icon for minimal interference
-- Caches downloaded images to avoid re-downloading
+- **[Development Guide](DEVELOPMENT.md)** - For developers who want to contribute or build from source
+- **[DevOps Guide](DEVOPS.md)** - For maintainers managing CI/CD and releases
+- **[Installer Guide](INSTALLER_GUIDE.md)** - Detailed installation and building instructions
+- **[Release Notes](RELEASE_NOTES.md)** - What's new in each version
+- **[Roadmap](ROADMAP.md)** - Future plans and features
 
-## Latest Release
+## ✨ Features
+
+- **Custom URL Protocol Handler** - Use `wallpaper0-changer:` links to easily set wallpapers
+- **Automatic Downloads** - Downloads images from aiwp.me API
+- **Windows Integration** - Sets desktop wallpaper using Windows API
+- **System Tray Application** - Runs minimized with a custom logo icon
+- **Smart Caching** - Caches downloaded images to avoid re-downloading
+- **Single Instance** - Automatically forwards requests to running instance
+
+## 📦 Latest Release
 
 The latest version is [Wallpaper Changer v1.1.3](https://github.com/asifthewebguy/wallpaper0-changer/releases/latest), which includes:
 
@@ -42,7 +51,7 @@ The latest version is [Wallpaper Changer v1.1.3](https://github.com/asifthewebgu
 
 See the [Release Notes](RELEASE_NOTES.md) for more details.
 
-## Installation
+## 🚀 Installation
 
 ### Windows Installer (Recommended)
 
@@ -53,52 +62,20 @@ See the [Release Notes](RELEASE_NOTES.md) for more details.
 3. Run the installer and follow the setup wizard
 
 **Features:**
-- No administrator rights required (installs for current user)
-- Optional system-wide installation (requires admin)
-- Automatic protocol handler registration
-- Start Menu shortcuts
-- Optional desktop icon and startup entry
-- Professional uninstaller
+- ✅ No administrator rights required (installs for current user)
+- ✅ Optional system-wide installation (requires admin)
+- ✅ Automatic protocol handler registration
+- ✅ Start Menu shortcuts
+- ✅ Optional desktop icon and startup entry
+- ✅ Professional uninstaller
 
 **Note:** Windows SmartScreen may show a warning for unsigned installers. Click "More info" → "Run anyway" to proceed.
 
-### PowerShell Script Installation (Alternative)
+### Alternative Installation Methods
 
-For advanced users or automated deployments:
+For advanced users, developers, or automated deployments, see the [Installation section in DEVELOPMENT.md](DEVELOPMENT.md#installation).
 
-1. Download the [latest release package](https://github.com/asifthewebguy/wallpaper0-changer/releases/latest)
-2. Extract the ZIP file
-3. Run the `install.ps1` script in PowerShell
-4. Follow the on-screen instructions
-
-The script will:
-- Build the application (if needed)
-- Copy files to the installation directory
-- Create a Start Menu shortcut
-- Register the protocol handler
-- Create an uninstaller
-
-### Manual Installation
-
-For developers or manual installation:
-
-1. Build the application:
-   ```powershell
-   dotnet build -c Release
-   ```
-
-2. Register the protocol handler:
-   ```powershell
-   # For current user only
-   .\register_protocol_user.ps1
-
-   # For system-wide (requires admin)
-   .\register_protocol.ps1
-   ```
-
-3. The application will start automatically when you click on a `wallpaper0-changer:` link
-
-## Usage
+## 📖 Usage
 
 ### Setting a Wallpaper
 
@@ -110,40 +87,21 @@ wallpaper0-changer:image_id
 
 Where `image_id` is the ID of the image on aiwp.me.
 
+**Example:**
+```html
+<a href="wallpaper0-changer:123">Set Wallpaper #123</a>
+```
+
+### Testing the Protocol Handler
+
+Open `test_protocol.html` (included in the installer) in your browser to test the protocol handler with an interactive UI.
+
 ### System Tray
 
 The application runs in the system tray. Right-click the icon to:
 - Exit the application
 
-## Development
-
-### Prerequisites
-
-- .NET 9.0 SDK
-- Windows 10 or later
-- Inno Setup 6 (for building installer)
-
-### Building
-
-Build the application:
-```powershell
-dotnet build -c Release
-```
-
-Build the installer:
-```powershell
-.\build-installer.ps1
-```
-
-See [INSTALLER_GUIDE.md](INSTALLER_GUIDE.md) for detailed build instructions.
-
-### Running
-
-```powershell
-dotnet run
-```
-
-## Troubleshooting
+## 🔧 Troubleshooting
 
 ### Common Issues
 
@@ -153,7 +111,7 @@ Windows may show a SmartScreen warning for unsigned installers:
 
 1. Click "More info"
 2. Click "Run anyway"
-3. Alternatively, see [INSTALLER_GUIDE.md](INSTALLER_GUIDE.md#code-signing) for code signing instructions
+3. Alternatively, see [code signing instructions](INSTALLER_GUIDE.md#code-signing)
 
 #### Protocol Handler Not Working
 
@@ -174,29 +132,23 @@ If the application doesn't start:
 3. Try running the application as administrator
 4. Verify antivirus isn't blocking the application
 
-#### Installation Issues
-
-For detailed troubleshooting and installation help:
-
-- See [INSTALLER_GUIDE.md](INSTALLER_GUIDE.md#troubleshooting)
-- Check installation logs (run installer with `/LOG="install.log"`)
-
 ### Getting Help
 
 If you encounter any issues:
 
 1. Check the [GitHub Issues](https://github.com/asifthewebguy/wallpaper0-changer/issues) to see if your problem has been reported
-2. Review the [Installer Guide](INSTALLER_GUIDE.md) for detailed documentation
+2. Review the [Installer Guide](INSTALLER_GUIDE.md) for detailed troubleshooting
 3. Open a new issue with:
    - Windows version
    - Installation method used
    - Steps to reproduce
    - Error messages or screenshots
 
-## Contributing
+## 🤝 Contributing
 
-Contributions are welcome! Here's how you can contribute:
+Contributions are welcome! Please see [DEVELOPMENT.md](DEVELOPMENT.md#contributing) for detailed guidelines on how to contribute to this project.
 
+Quick start:
 1. Fork the repository
 2. Create a feature branch (`git checkout -b feature/amazing-feature`)
 3. Make your changes
@@ -204,24 +156,21 @@ Contributions are welcome! Here's how you can contribute:
 5. Push to the branch (`git push origin feature/amazing-feature`)
 6. Open a Pull Request
 
-Please make sure your code follows the existing style and includes appropriate tests.
-
-## Roadmap
-
-Future plans for Wallpaper Changer include:
-
-- [ ] Settings page for configuration options
-- [ ] Support for multiple monitors
-- [ ] Scheduled wallpaper changes
-- [ ] Additional wallpaper sources
-- [ ] Image preview before setting as wallpaper
-- [ ] Wallpaper history and favorites
-
-## Acknowledgements
+## 🙏 Acknowledgements
 
 - [aiwp.me](https://aiwp.me) for providing the wallpaper API
+- [Inno Setup](https://jrsoftware.org/isinfo.php) for the excellent installer framework
 - All contributors who have helped with the project
 
-## License
+## 📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+---
+
+**Quick Links:**
+- [Development Guide](DEVELOPMENT.md) - Build from source, contribute code
+- [DevOps Guide](DEVOPS.md) - CI/CD, releases, deployment
+- [Installer Guide](INSTALLER_GUIDE.md) - Advanced installation options
+- [Release Notes](RELEASE_NOTES.md) - Version history
+- [Roadmap](ROADMAP.md) - Future features
