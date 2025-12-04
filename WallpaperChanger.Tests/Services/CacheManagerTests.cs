@@ -35,8 +35,9 @@ public class CacheManagerTests
         };
         _mockConfigService.Settings.Returns(settings);
 
-        // Configure mock validation service to accept all image IDs in tests
+        // Configure mock validation service to accept all image IDs and file paths in tests
         _mockValidationService.IsValidImageId(Arg.Any<string>()).Returns(true);
+        _mockValidationService.IsValidFilePath(Arg.Any<string>()).Returns(true);
 
         _cacheManager = new CacheManager(_mockLogger, _mockValidationService, _mockConfigService);
     }

@@ -111,16 +111,24 @@ public class ApiClient : IApiClient
                 // Validate the URL
                 if (!_validationService.IsValidImageUrl(imageUrl))
                 {
-                    throw new WallpaperException(ErrorCode.ApiError, "API returned an invalid or untrusted URL")
+                    throw new WallpaperException(ErrorCode.InvalidImageId, "API returned an invalid or untrusted URL")
                         .WithContext("ImageId", imageId)
                         .WithContext("Url", imageUrl);
+                }
+
+                // Try to get FileSize from the response
+                long fileSize = 0;
+                if (root.TryGetProperty("size", out JsonElement sizeElement))
+                {
+                    fileSize = sizeElement.GetInt64();
                 }
 
                 var imageDetails = new ImageDetails
                 {
                     ImageId = imageId,
                     ImageUrl = imageUrl,
-                    Format = Path.GetExtension(imageUrl).TrimStart('.')
+                    Format = Path.GetExtension(imageUrl).TrimStart('.'),
+                    FileSize = fileSize
                 };
 
                 _logger.LogInfo("Successfully retrieved image details", new Dictionary<string, object>

@@ -275,13 +275,8 @@ public class ConfigurationServiceTests
 /// </summary>
 internal class TestableConfigurationService : ConfigurationService
 {
-    private readonly string _testConfigPath;
-
     public TestableConfigurationService(IAppLogger logger, string configPath)
-        : base(logger)
+        : base(logger, configPath)
     {
-        _testConfigPath = configPath;
     }
-
-    protected string GetConfigPath() => _testConfigPath;
 }

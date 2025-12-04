@@ -87,6 +87,7 @@ public class ValidationService : IValidationService
     /// - Null or empty paths
     /// - Path traversal attempts (../ or ..\)
     /// - Invalid path characters
+    /// - Path length limits (Windows MAX_PATH = 260)
     /// </remarks>
     public bool IsValidFilePath(string path)
     {
@@ -97,9 +98,26 @@ public class ValidationService : IValidationService
         if (PathTraversalRegex.IsMatch(path))
             return false;
 
+        // Check path length (Windows MAX_PATH is 260 characters)
+        if (path.Length > 260)
+            return false;
+
         // Check for invalid path characters
+        char[] invalidChars = Path.GetInvalidPathChars();
+        if (path.IndexOfAny(invalidChars) >= 0)
+            return false;
+
+        // Additional check for filename-specific invalid characters in the filename part
         try
         {
+            string? fileName = Path.GetFileName(path);
+            if (!string.IsNullOrEmpty(fileName))
+            {
+                char[] invalidFileNameChars = Path.GetInvalidFileNameChars();
+                if (fileName.IndexOfAny(invalidFileNameChars) >= 0)
+                    return false;
+            }
+
             string? fullPath = Path.GetFullPath(path);
             return !string.IsNullOrEmpty(fullPath);
         }

@@ -32,6 +32,24 @@ public class ConfigurationService : IConfigurationService
     }
 
     /// <summary>
+    /// Initializes a new instance of the <see cref="ConfigurationService"/> class with a custom config path.
+    /// </summary>
+    /// <param name="logger">The logger instance.</param>
+    /// <param name="configFilePath">The custom configuration file path.</param>
+    protected ConfigurationService(IAppLogger logger, string configFilePath)
+    {
+        _logger = logger;
+        _settings = GetDefaultSettings();
+        _configFilePath = configFilePath;
+
+        string? configDirectory = Path.GetDirectoryName(configFilePath);
+        if (!string.IsNullOrEmpty(configDirectory))
+        {
+            Directory.CreateDirectory(configDirectory);
+        }
+    }
+
+    /// <summary>
     /// Gets the current application settings.
     /// </summary>
     public AppSettings Settings => _settings;
