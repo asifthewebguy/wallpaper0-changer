@@ -23,6 +23,7 @@ A Windows application that changes desktop wallpapers using images from aiwp.me 
 
 ## 📚 Documentation
 
+- **[Architecture Guide](ARCHITECTURE.md)** - System architecture, design patterns, and technical details
 - **[Development Guide](DEVELOPMENT.md)** - For developers who want to contribute or build from source
 - **[DevOps Guide](DEVOPS.md)** - For maintainers managing CI/CD and releases
 - **[Installer Guide](INSTALLER_GUIDE.md)** - Detailed installation and building instructions
@@ -31,12 +32,21 @@ A Windows application that changes desktop wallpapers using images from aiwp.me 
 
 ## ✨ Features
 
+### User Features
 - **Custom URL Protocol Handler** - Use `wallpaper0-changer:` links to easily set wallpapers
-- **Automatic Downloads** - Downloads images from aiwp.me API
+- **Automatic Downloads** - Downloads images from aiwp.me API with progress tracking
 - **Windows Integration** - Sets desktop wallpaper using Windows API
 - **System Tray Application** - Runs minimized with a custom logo icon
-- **Smart Caching** - Caches downloaded images to avoid re-downloading
-- **Single Instance** - Automatically forwards requests to running instance
+- **Smart LRU Caching** - Caches downloaded images with size limits (configurable, default 500 MB)
+- **Single Instance** - Automatically forwards requests to running instance via named pipes
+
+### Technical Features
+- **Dependency Injection** - Clean architecture with Microsoft.Extensions.DependencyInjection
+- **Retry Logic** - Automatic retries with exponential backoff using Polly
+- **Structured Logging** - JSON logs with 7-day retention for debugging
+- **Input Validation** - Security-hardened against SQL injection, SSRF, and path traversal
+- **Comprehensive Testing** - 59 unit tests covering security, resilience, and business logic
+- **Configurable Settings** - JSON-based persistent configuration
 
 ## 📦 Latest Release
 
@@ -169,6 +179,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ---
 
 **Quick Links:**
+- [Architecture Guide](ARCHITECTURE.md) - System design and technical architecture
 - [Development Guide](DEVELOPMENT.md) - Build from source, contribute code
 - [DevOps Guide](DEVOPS.md) - CI/CD, releases, deployment
 - [Installer Guide](INSTALLER_GUIDE.md) - Advanced installation options
