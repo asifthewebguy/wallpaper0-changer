@@ -1,5 +1,7 @@
 using System.Diagnostics;
 using System.IO.Pipes;
+using Microsoft.Extensions.DependencyInjection;
+using WallpaperChanger.Services;
 
 namespace WallpaperChanger;
 
@@ -11,6 +13,8 @@ static class Program
     private static readonly string MutexName = "WallpaperChangerMutex";
     private static Form1? _mainForm;
     private static CancellationTokenSource? _pipeServerCts;
+    private static IServiceProvider? _serviceProvider;
+    private static IAppLogger? _logger;
 
     /// <summary>
     ///  The main entry point for the application.
@@ -31,41 +35,71 @@ static class Program
             return;
         }
 
-        // To customize application configuration such as set high DPI settings or default font,
-        // see https://aka.ms/applicationconfiguration.
-        ApplicationConfiguration.Initialize();
-
-        // Set the application to run in the system tray
-        Application.SetHighDpiMode(HighDpiMode.SystemAware);
-        Application.EnableVisualStyles();
-        Application.SetCompatibleTextRenderingDefault(false);
-
-        // Create and run the main form
-        _mainForm = new Form1
+        try
         {
-            WindowState = FormWindowState.Minimized,
-            ShowInTaskbar = false
-        };
+            // Configure dependency injection
+            _serviceProvider = ServiceConfiguration.ConfigureServices();
+            _logger = _serviceProvider.GetRequiredService<IAppLogger>();
 
-        // Start the named pipe server
-        _pipeServerCts = new CancellationTokenSource();
-        Task.Run(() => StartNamedPipeServer(_pipeServerCts.Token));
+            _logger?.LogInfo("Application starting", new Dictionary<string, object>
+            {
+                { "Version", "1.1.3" },
+                { "Args", string.Join(", ", args) }
+            });
 
-        // Process command line arguments if any
-        if (args.Length > 0)
-        {
-            _mainForm.ProcessCommandLineArgument(args[0]);
+            // To customize application configuration such as set high DPI settings or default font,
+            // see https://aka.ms/applicationconfiguration.
+            ApplicationConfiguration.Initialize();
+
+            // Set the application to run in the system tray
+            Application.SetHighDpiMode(HighDpiMode.SystemAware);
+            Application.EnableVisualStyles();
+            Application.SetCompatibleTextRenderingDefault(false);
+
+            // Create the main form using DI
+            _mainForm = new Form1(
+                _serviceProvider.GetRequiredService<IWallpaperService>(),
+                _serviceProvider.GetRequiredService<IValidationService>(),
+                _serviceProvider.GetRequiredService<IConfigurationService>(),
+                _serviceProvider.GetRequiredService<IAppLogger>()
+            )
+            {
+                WindowState = FormWindowState.Minimized,
+                ShowInTaskbar = false
+            };
+
+            // Start the named pipe server
+            _pipeServerCts = new CancellationTokenSource();
+            Task.Run(() => StartNamedPipeServer(_pipeServerCts.Token));
+
+            // Process command line arguments if any
+            if (args.Length > 0)
+            {
+                _mainForm.ProcessCommandLineArgument(args[0]);
+            }
+
+            // Handle application exit
+            Application.ApplicationExit += (sender, e) =>
+            {
+                _logger?.LogInfo("Application exiting");
+                _pipeServerCts?.Cancel();
+                _mutex?.ReleaseMutex();
+                _mutex?.Dispose();
+
+                // Dispose DI container
+                if (_serviceProvider is IDisposable disposable)
+                {
+                    disposable.Dispose();
+                }
+            };
+
+            Application.Run(_mainForm);
         }
-
-        // Handle application exit
-        Application.ApplicationExit += (sender, e) =>
+        catch (Exception ex)
         {
-            _pipeServerCts?.Cancel();
-            _mutex?.ReleaseMutex();
-            _mutex?.Dispose();
-        };
-
-        Application.Run(_mainForm);
+            _logger?.LogError("Fatal error during application startup", ex);
+            MessageBox.Show($"Fatal error: {ex.Message}", "Wallpaper Changer Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
     }
 
     private static async Task StartNamedPipeServer(CancellationToken cancellationToken)
@@ -102,7 +136,7 @@ static class Program
             catch (Exception ex)
             {
                 // Log the error and continue
-                Debug.WriteLine($"Named pipe server error: {ex.Message}");
+                _logger?.LogWarning("Named pipe server error", ex);
                 await Task.Delay(1000, cancellationToken); // Wait a bit before retrying
             }
         }
