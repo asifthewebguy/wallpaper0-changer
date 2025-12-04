@@ -124,24 +124,26 @@ public class CacheManagerTests
         var imageId3 = "3";
 
         // Create files with different timestamps
-        CreateCachedFile(imageId1, 500 * 1024); // 500 KB - oldest
+        CreateCachedFile(imageId1, 400 * 1024); // 400 KB - oldest
         await Task.Delay(100);
-        CreateCachedFile(imageId2, 500 * 1024); // 500 KB - middle
+        CreateCachedFile(imageId2, 300 * 1024); // 300 KB - middle
         await Task.Delay(100);
-        CreateCachedFile(imageId3, 500 * 1024); // 500 KB - newest
+        CreateCachedFile(imageId3, 300 * 1024); // 300 KB - newest
 
-        // Access image3 to make it most recently used
-        _ = _cacheManager.GetCachedImagePath(imageId3, ".jpg");
+        // Total: 1000 KB. Update access times to ensure LRU order: imageId1 is LRU
+        _cacheManager.UpdateAccessTime(imageId2);
+        await Task.Delay(50);
+        _cacheManager.UpdateAccessTime(imageId3);
 
-        var maxSize = 700 * 1024; // 700 KB limit (should delete oldest file)
+        var maxSize = 700 * 1024; // 700 KB limit (should delete imageId1 only, keeping 600KB of imageId2+imageId3)
 
         // Act
         await _cacheManager.CleanupCacheAsync(maxSize);
 
         // Assert
-        _cacheManager.IsCached(imageId1).Should().BeFalse("Oldest file should be deleted");
-        _cacheManager.IsCached(imageId2).Should().BeTrue("Newer file should remain");
-        _cacheManager.IsCached(imageId3).Should().BeTrue("Newest file should remain");
+        _cacheManager.IsCached(imageId1).Should().BeFalse("Least recently used file should be deleted");
+        _cacheManager.IsCached(imageId2).Should().BeTrue("More recently used file should remain");
+        _cacheManager.IsCached(imageId3).Should().BeTrue("Most recently used file should remain");
     }
 
     [TestMethod]
@@ -250,8 +252,10 @@ public class CacheManagerTests
         await _cacheManager.CleanupCacheAsync(0);
 
         // Assert
-        var files = Directory.GetFiles(_testCacheDir);
-        files.Should().BeEmpty("All files should be deleted with zero size limit");
+        var files = Directory.GetFiles(_testCacheDir)
+            .Where(f => !f.EndsWith("access-times.json"))
+            .ToArray();
+        files.Should().BeEmpty("All image files should be deleted with zero size limit");
     }
 
     [TestMethod]

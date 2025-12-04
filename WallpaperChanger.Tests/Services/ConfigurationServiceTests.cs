@@ -1,5 +1,6 @@
 using FluentAssertions;
 using NSubstitute;
+using WallpaperChanger.Exceptions;
 using WallpaperChanger.Models;
 using WallpaperChanger.Services;
 
@@ -126,8 +127,8 @@ public class ConfigurationServiceTests
         // Assert
         configService.Settings.Should().NotBeNull();
         configService.Settings.MaxCacheSizeMb.Should().Be(500, "Should use default value");
-        _mockLogger.Received(1).LogWarning(
-            Arg.Is<string>(s => s.Contains("Failed to load")),
+        _mockLogger.Received(1).LogError(
+            Arg.Is<string>(s => s.Contains("Invalid JSON")),
             Arg.Any<Exception>()
         );
     }
@@ -203,7 +204,7 @@ public class ConfigurationServiceTests
     }
 
     [TestMethod]
-    public async Task LoadSettingsAsync_WithReadOnlyFile_LogsWarning()
+    public async Task LoadSettingsAsync_WithReadOnlyFile_ThrowsException()
     {
         // Arrange
         await File.WriteAllTextAsync(_testConfigPath, "{}");
@@ -216,11 +217,14 @@ public class ConfigurationServiceTests
             // Act
             await configService.LoadSettingsAsync();
             configService.Settings.MaxCacheSizeMb = 999;
-            await configService.SaveSettingsAsync();
+            Func<Task> act = async () => await configService.SaveSettingsAsync();
 
-            // Assert - Should log warning about inability to save
-            _mockLogger.Received().LogWarning(
-                Arg.Any<string>(),
+            // Assert - Should throw WallpaperException when unable to save
+            await act.Should().ThrowAsync<WallpaperException>()
+                .Where(ex => ex.ErrorCode == ErrorCode.ConfigurationError);
+
+            _mockLogger.Received().LogError(
+                Arg.Is<string>(s => s.Contains("Failed to save")),
                 Arg.Any<Exception>()
             );
         }
