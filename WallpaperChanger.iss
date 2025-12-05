@@ -2,7 +2,7 @@
 ; This script creates a professional Windows installer for the Wallpaper Changer application
 
 #define MyAppName "Wallpaper Changer"
-#define MyAppVersion "1.2.0"
+#define MyAppVersion "1.2.2"
 #define MyAppPublisher "ATWG"
 #define MyAppURL "https://github.com/asifthewebguy/wallpaper0-changer"
 #define MyAppExeName "WallpaperChanger.exe"

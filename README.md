@@ -50,7 +50,7 @@ A Windows application that changes desktop wallpapers using images from aiwp.me 
 
 ## 📦 Latest Release
 
-The latest version is [Wallpaper Changer v1.1.3](https://github.com/asifthewebguy/wallpaper0-changer/releases/latest), which includes:
+The latest version is [Wallpaper Changer v1.2.2](https://github.com/asifthewebguy/wallpaper0-changer/releases/latest), which includes:
 
 - Professional Inno Setup installer
 - Self-contained build (no .NET runtime required)
@@ -68,7 +68,7 @@ See the [Release Notes](RELEASE_NOTES.md) for more details.
 **Download and run the installer:**
 
 1. Go to the [latest release](https://github.com/asifthewebguy/wallpaper0-changer/releases/latest)
-2. Download `WallpaperChanger-Setup-v1.1.3.exe`
+2. Download `WallpaperChanger-Setup-v1.2.2.exe`
 3. Run the installer and follow the setup wizard
 
 **Features:**

@@ -39,7 +39,7 @@ Wallpaper Changer is a Windows application that changes desktop wallpapers using
 
 ### Windows Installer (Recommended)
 
-1. Download `WallpaperChanger-Setup-v1.1.3.exe`
+1. Download `WallpaperChanger-Setup-v1.2.2.exe`
 2. Run the installer and follow the setup wizard
 3. Choose installation options (desktop icon, auto-start, etc.)
 4. Click Install

@@ -2,7 +2,7 @@
 # This script builds the application and creates an Inno Setup installer
 
 param (
-    [string]$Version = "1.2.0",
+    [string]$Version = "1.2.2",
     [string]$Configuration = "Release",
     [switch]$SkipBuild = $false,
     [string]$InnoSetupPath = ""
