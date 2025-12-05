@@ -4,27 +4,19 @@
 
 Wallpaper Changer is a Windows application that changes desktop wallpapers using images from aiwp.me via a custom URL protocol. This release introduces a professional Inno Setup installer and major improvements to the installation experience.
 
-## What's New in v1.1.3
+## What's New in v1.2.2
 
-### Professional Inno Setup Installer
-- **One-Click Installation**: Modern Windows installer with wizard-style setup
-- **No Admin Required**: User-level installation (no administrator rights needed)
-- **Self-Contained Build**: Includes .NET 9 runtime - no dependencies needed
-- **Smart Uninstaller**: Clean removal with automatic cleanup of cache and registry entries
-- **Optional Features**: Desktop icon and startup entry can be selected during installation
+### 🚀 New Features
+- **Minimize to Tray**: Application now keeps running in the background. Right-click the tray icon to exit or restore.
+- **Scheduler**: Automatically rotate wallpapers at set intervals (1 min to 24 hours).
+- **Smart Caching**: Significantly improved performance by skipping redundant downloads for existing wallpapers.
+- **Improved Validation**: Enhanced security and validation for image IDs and URLs.
+- **Tray "Rotate Now"**: Right-click the tray icon to force an immediate rotation from the API.
 
-### Improved Installation
-- Automatic protocol handler registration
-- Start Menu shortcuts
-- Optional system-wide installation (for administrators)
-- Proper Windows "Programs and Features" integration
-- Installation logging support
-
-### Streamlined Codebase
-- Removed legacy installer systems (WiX, NSIS)
-- Consolidated to single professional installer
-- Updated CI/CD pipeline for automated builds
-- Improved documentation and guides
+### 📦 Installation Improvements
+- **Professional Inno Setup Installer**: Wizard-style setup.
+- **No Admin Required**: Installs to local user profile.
+- **Self-Contained**: Includes .NET 9 runtime.
 
 ## Features
 
