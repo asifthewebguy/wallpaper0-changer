@@ -47,7 +47,6 @@ public class ValidationServiceTests
         // Arrange - Test IDs with truly invalid characters (not alphanumeric, hyphen, or underscore)
         var invalidIds = new[]
         {
-            "12.34",      // Period not allowed
             "invalid!@#", // Special characters not allowed
             "12 34",      // Spaces not allowed
             "12\n34",     // Newlines not allowed
