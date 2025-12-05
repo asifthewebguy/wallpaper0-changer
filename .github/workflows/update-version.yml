@@ -1,5 +1,7 @@
 name: Update Version
 
+# This workflow is only triggered manually via workflow_dispatch
+# It requires version input and should not run on push events
 on:
   workflow_dispatch:
     inputs:
