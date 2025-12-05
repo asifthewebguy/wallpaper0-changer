@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Alphanumeric Wallpaper IDs</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            color: #333;
+        }
+        h1 {
+            color: #667eea;
+            margin-top: 0;
+            text-align: center;
+        }
+        h2 {
+            color: #764ba2;
+            border-bottom: 2px solid #e0e0e0;
+            padding-bottom: 10px;
+            margin-top: 30px;
+        }
+        .info-box {
+            background: #e3f2fd;
+            border-left: 4px solid #2196F3;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        .success-box {
+            background: #e8f5e9;
+            border-left: 4px solid #4CAF50;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        .button {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 24px;
+            text-align: center;
+            text-decoration: none;
+            font-size: 16px;
+            margin: 8px 4px;
+            cursor: pointer;
+            border-radius: 6px;
+            border: none;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+        }
+        .button:active {
+            transform: translateY(0);
+        }
+        .test-section {
+            margin: 30px 0;
+            padding: 20px;
+            background: #fff;
+            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+        }
+        .test-section h3 {
+            color: #667eea;
+            margin-top: 0;
+        }
+        .test-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+            margin-top: 15px;
+        }
+        code {
+            background: #f5f5f5;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            color: #d32f2f;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #e0e0e0;
+            color: #666;
+            font-size: 14px;
+        }
+        .status {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-left: 8px;
+        }
+        .status.new {
+            background: #4CAF50;
+            color: white;
+        }
+        .status.legacy {
+            background: #2196F3;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Alphanumeric Wallpaper ID Test Suite</h1>
+
+        <div class="success-box">
+            <strong>✅ Fixed!</strong> The app now supports alphanumeric wallpaper IDs from aiwp.me!
+            <br>Test the examples below to verify the fix is working.
+        </div>
+
+        <div class="info-box">
+            <strong>How to test:</strong>
+            <ol style="margin: 10px 0; padding-left: 20px;">
+                <li>Make sure WallpaperChanger is running (check system tray)</li>
+                <li>Click any test button below</li>
+                <li>Watch for notifications from WallpaperChanger</li>
+                <li>Check the logs at <code>%LOCALAPPDATA%\WallpaperChanger\Logs</code></li>
+            </ol>
+        </div>
+
+        <!-- Real aiwp.me Example -->
+        <div class="test-section">
+            <h3>🎯 Real Example from aiwp.me <span class="status new">NEW</span></h3>
+            <p>This is the actual ID format that was failing before:</p>
+            <div class="test-grid">
+                <a href="wallpaper0-changer:HNVOO3GJH7.jpg" class="button">HNVOO3GJH7.jpg</a>
+                <a href="wallpaper0-changer:HNVOO3GJH7" class="button">HNVOO3GJH7 (no ext)</a>
+            </div>
+            <p style="font-size: 14px; color: #666; margin-top: 10px;">
+                <strong>Expected:</strong> Should work now! Extension will be stripped automatically.
+            </p>
+        </div>
+
+        <!-- Alphanumeric IDs -->
+        <div class="test-section">
+            <h3>🔤 Alphanumeric IDs <span class="status new">NEW</span></h3>
+            <p>Test various alphanumeric combinations:</p>
+            <div class="test-grid">
+                <a href="wallpaper0-changer:ABC123" class="button">ABC123</a>
+                <a href="wallpaper0-changer:test123.jpg" class="button">test123.jpg</a>
+                <a href="wallpaper0-changer:XYZ789.png" class="button">XYZ789.png</a>
+                <a href="wallpaper0-changer:Image2024" class="button">Image2024</a>
+            </div>
+        </div>
+
+        <!-- IDs with Hyphens and Underscores -->
+        <div class="test-section">
+            <h3>➖ IDs with Hyphens & Underscores <span class="status new">NEW</span></h3>
+            <p>These special characters are now allowed:</p>
+            <div class="test-grid">
+                <a href="wallpaper0-changer:image-test-01" class="button">image-test-01</a>
+                <a href="wallpaper0-changer:photo_123.jpg" class="button">photo_123.jpg</a>
+                <a href="wallpaper0-changer:Test-Image_1" class="button">Test-Image_1</a>
+                <a href="wallpaper0-changer:wall_paper-2024" class="button">wall_paper-2024</a>
+            </div>
+        </div>
+
+        <!-- File Extension Tests -->
+        <div class="test-section">
+            <h3>📁 File Extension Stripping <span class="status new">NEW</span></h3>
+            <p>App now automatically strips common image extensions:</p>
+            <div class="test-grid">
+                <a href="wallpaper0-changer:test.jpg" class="button">.jpg</a>
+                <a href="wallpaper0-changer:test.jpeg" class="button">.jpeg</a>
+                <a href="wallpaper0-changer:test.png" class="button">.png</a>
+                <a href="wallpaper0-changer:test.webp" class="button">.webp</a>
+                <a href="wallpaper0-changer:test.bmp" class="button">.bmp</a>
+                <a href="wallpaper0-changer:test.gif" class="button">.gif</a>
+            </div>
+            <p style="font-size: 14px; color: #666; margin-top: 10px;">
+                <strong>Note:</strong> All extensions will be stripped, ID will be "test"
+            </p>
+        </div>
+
+        <!-- Backwards Compatibility -->
+        <div class="test-section">
+            <h3>🔄 Backwards Compatibility <span class="status legacy">LEGACY</span></h3>
+            <p>Original numeric IDs still work:</p>
+            <div class="test-grid">
+                <a href="wallpaper0-changer:1" class="button">ID: 1</a>
+                <a href="wallpaper0-changer:123" class="button">ID: 123</a>
+                <a href="wallpaper0-changer:456789" class="button">ID: 456789</a>
+                <a href="wallpaper0-changer:999" class="button">ID: 999</a>
+            </div>
+            <p style="font-size: 14px; color: #666; margin-top: 10px;">
+                <strong>Expected:</strong> All should work (backwards compatible)
+            </p>
+        </div>
+
+        <!-- Invalid Test Cases -->
+        <div class="test-section">
+            <h3>❌ Invalid IDs (Should Fail)</h3>
+            <p>These should show error messages (testing validation):</p>
+            <div class="test-grid">
+                <a href="wallpaper0-changer:test.invalid" class="button" style="background: linear-gradient(135deg, #f44336 0%, #d32f2f 100%);">test.invalid</a>
+                <a href="wallpaper0-changer:test!@#$" class="button" style="background: linear-gradient(135deg, #f44336 0%, #d32f2f 100%);">test!@#$</a>
+                <a href="wallpaper0-changer:test space" class="button" style="background: linear-gradient(135deg, #f44336 0%, #d32f2f 100%);">test space</a>
+                <a href="wallpaper0-changer:../../../etc/passwd" class="button" style="background: linear-gradient(135deg, #f44336 0%, #d32f2f 100%);">path traversal</a>
+            </div>
+            <p style="font-size: 14px; color: #666; margin-top: 10px;">
+                <strong>Expected:</strong> "Invalid wallpaper ID" error notification
+            </p>
+        </div>
+
+        <!-- Custom Test -->
+        <div class="test-section">
+            <h3>🎨 Custom ID Test</h3>
+            <p>Enter your own wallpaper ID to test:</p>
+            <input type="text" id="customId" placeholder="Enter ID (e.g., ABC123, test-image.jpg)"
+                   style="width: 100%; padding: 10px; font-size: 14px; border: 2px solid #e0e0e0; border-radius: 6px; box-sizing: border-box; margin: 10px 0;">
+            <button class="button" onclick="testCustomId()">🚀 Test Custom ID</button>
+        </div>
+
+        <div class="info-box">
+            <strong>📊 What to Look For:</strong>
+            <ul style="margin: 10px 0; padding-left: 20px;">
+                <li><strong>Success:</strong> "Downloading wallpaper..." notification</li>
+                <li><strong>Invalid ID:</strong> "Invalid wallpaper ID" notification</li>
+                <li><strong>Logs:</strong> Check <code>%LOCALAPPDATA%\WallpaperChanger\Logs\wallpaper-changer-*.log</code></li>
+                <li><strong>Extension Stripping:</strong> Log should show "Stripped file extension" for .jpg, .png, etc.</li>
+            </ul>
+        </div>
+
+        <div class="footer">
+            <p><strong>Wallpaper Changer v1.2.1-dev</strong></p>
+            <p>✅ Alphanumeric ID Support | ✅ File Extension Stripping | ✅ Backwards Compatible</p>
+            <p>
+                <a href="https://github.com/asifthewebguy/wallpaper0-changer"
+                   style="color: #667eea; text-decoration: none;">
+                    View on GitHub
+                </a>
+                |
+                <a href="ALPHANUMERIC_ID_FIX.md"
+                   style="color: #667eea; text-decoration: none; margin-left: 10px;">
+                    Fix Documentation
+                </a>
+            </p>
+        </div>
+    </div>
+
+    <script>
+        function testCustomId() {
+            const customId = document.getElementById('customId').value.trim();
+            if (customId) {
+                console.log('Testing custom ID:', customId);
+                window.location.href = 'wallpaper0-changer:' + customId;
+            } else {
+                alert('Please enter an image ID to test');
+            }
+        }
+
+        // Allow Enter key to submit
+        document.getElementById('customId').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                testCustomId();
+            }
+        });
+
+        // Log page load
+        console.log('%c🧪 Alphanumeric ID Test Suite Loaded', 'color: #667eea; font-size: 16px; font-weight: bold;');
+        console.log('Click any test button to verify the alphanumeric ID fix');
+        console.log('WallpaperChanger should be running in system tray');
+    </script>
+</body>
+</html>

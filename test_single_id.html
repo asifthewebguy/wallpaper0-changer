@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Single ID</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        .test-link {
+            display: block;
+            background: #4CAF50;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            text-decoration: none;
+            border-radius: 6px;
+            font-size: 18px;
+            font-weight: bold;
+            margin: 20px 0;
+        }
+        .test-link:hover {
+            background: #45a049;
+        }
+        code {
+            background: #f0f0f0;
+            padding: 2px 6px;
+            border-radius: 3px;
+            color: #d32f2f;
+        }
+        .info {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎯 Test Alphanumeric ID</h1>
+
+        <div class="info">
+            <strong>Test URL:</strong> <code>wallpaper0-changer:IW7TL5DPE5.jpg</code>
+            <br><br>
+            <strong>Expected Behavior:</strong>
+            <ul>
+                <li>✅ Extension <code>.jpg</code> will be stripped</li>
+                <li>✅ Image ID will be: <code>IW7TL5DPE5</code></li>
+                <li>✅ Validation will pass (alphanumeric allowed)</li>
+                <li>✅ App will try to download from API</li>
+            </ul>
+        </div>
+
+        <a href="wallpaper0-changer:IW7TL5DPE5.jpg" class="test-link">
+            🚀 Click to Test: IW7TL5DPE5.jpg
+        </a>
+
+        <div class="info">
+            <strong>What to Look For:</strong>
+            <ul>
+                <li>📢 Notification from WallpaperChanger (system tray)</li>
+                <li>✅ "Downloading wallpaper IW7TL5DPE5..." = SUCCESS</li>
+                <li>❌ "Invalid wallpaper ID" = FAILED (shouldn't happen)</li>
+            </ul>
+        </div>
+
+        <h2>More Test Cases:</h2>
+        <a href="wallpaper0-changer:ABC123.jpg" class="test-link" style="background: #2196F3;">
+            Test: ABC123.jpg
+        </a>
+        <a href="wallpaper0-changer:test-image_01" class="test-link" style="background: #FF9800;">
+            Test: test-image_01 (hyphens & underscores)
+        </a>
+        <a href="wallpaper0-changer:123" class="test-link" style="background: #9C27B0;">
+            Test: 123 (backwards compatible)
+        </a>
+    </div>
+
+    <script>
+        console.log('%c🧪 Ready to test alphanumeric IDs!', 'color: #4CAF50; font-size: 16px; font-weight: bold;');
+        console.log('Click any link above and watch for notifications from WallpaperChanger');
+
+        // Auto-open the main test after 2 seconds
+        setTimeout(() => {
+            console.log('🎯 You can now test wallpaper0-changer:IW7TL5DPE5.jpg');
+        }, 2000);
+    </script>
+</body>
+</html>
