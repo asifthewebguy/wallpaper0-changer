@@ -39,4 +39,34 @@ public class AppSettings
     /// Gets or sets the API timeout in seconds.
     /// </summary>
     public int ApiTimeoutSeconds { get; set; } = 30;
+    /// <summary>
+    /// Gets or sets a value indicating whether the wallpaper scheduler is enabled.
+    /// </summary>
+    public bool IsSchedulerEnabled { get; set; } = false;
+
+    /// <summary>
+    /// Gets or sets the scheduler interval in minutes.
+    /// </summary>
+    public int SchedulerIntervalMinutes { get; set; } = 60;
+
+    /// <summary>
+    /// Gets or sets the source for the wallpaper rotation.
+    /// </summary>
+    public RotationSource RotationSource { get; set; } = RotationSource.History;
+}
+
+/// <summary>
+/// Defines the potential sources for wallpaper rotation.
+/// </summary>
+public enum RotationSource
+{
+    /// <summary>
+    /// Use images from the local history cache.
+    /// </summary>
+    History,
+    
+    /// <summary>
+    /// Fetch a random image from the API.
+    /// </summary>
+    Api
 }

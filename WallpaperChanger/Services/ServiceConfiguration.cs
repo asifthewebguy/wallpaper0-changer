@@ -23,6 +23,7 @@ public static class ServiceConfiguration
 
         // Register business logic services
         services.AddSingleton<IWallpaperService, WallpaperService>();
+        services.AddSingleton<ISchedulerService, SchedulerService>();
 
         // Register HTTP client services
         // ApiClient and ImageDownloader use HttpClient, so we register them with HttpClientFactory

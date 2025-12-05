@@ -1,0 +1,13 @@
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+E:\ag-projects\wallpaper0-changer\WallpaperChanger\Services\ISchedulerService.cs(24,70): error CS0246: The type or namespace name 'RotationSource' could not be found (are you missing a using directive or an assembly reference?) [E:\ag-projects\wallpaper0-changer\WallpaperChanger\WallpaperChanger.csproj]
+E:\ag-projects\wallpaper0-changer\WallpaperChanger\Services\SchedulerService.cs(11,33): error CS0535: 'SchedulerService' does not implement interface member 'ISchedulerService.UpdateConfigurationAsync(bool, int, RotationSource)' [E:\ag-projects\wallpaper0-changer\WallpaperChanger\WallpaperChanger.csproj]
+
+Build FAILED.
+
+E:\ag-projects\wallpaper0-changer\WallpaperChanger\Services\ISchedulerService.cs(24,70): error CS0246: The type or namespace name 'RotationSource' could not be found (are you missing a using directive or an assembly reference?) [E:\ag-projects\wallpaper0-changer\WallpaperChanger\WallpaperChanger.csproj]
+E:\ag-projects\wallpaper0-changer\WallpaperChanger\Services\SchedulerService.cs(11,33): error CS0535: 'SchedulerService' does not implement interface member 'ISchedulerService.UpdateConfigurationAsync(bool, int, RotationSource)' [E:\ag-projects\wallpaper0-changer\WallpaperChanger\WallpaperChanger.csproj]
+    0 Warning(s)
+    2 Error(s)
+
+Time Elapsed 00:00:00.99

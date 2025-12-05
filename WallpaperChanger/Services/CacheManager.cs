@@ -54,6 +54,23 @@ public class CacheManager : ICacheManager
     }
 
     /// <summary>
+    /// Gets the existing cached image path for a given image ID (searches all extensions).
+    /// </summary>
+    public string? GetExistingCachedImagePath(string imageId)
+    {
+        try
+        {
+            var files = Directory.GetFiles(_cacheDirectory, $"{imageId}.*");
+            return files.FirstOrDefault();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning($"Error finding cached image path for {imageId}", ex);
+            return null;
+        }
+    }
+
+    /// <summary>
     /// Checks if an image is already cached.
     /// </summary>
     public bool IsCached(string imageId)

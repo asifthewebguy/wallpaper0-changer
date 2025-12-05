@@ -56,6 +56,25 @@ public class WallpaperService : IWallpaperService
                 { "ImageId", imageId }
             });
 
+            // Step 0: Check if already cached to avoid API call and download
+            string? existingPath = _cacheManager.GetExistingCachedImagePath(imageId);
+            if (!string.IsNullOrEmpty(existingPath) && File.Exists(existingPath))
+            {
+                _logger.LogInfo($"Image {imageId} found in cache. Skipping API and download.");
+                _cacheManager.UpdateAccessTime(imageId);
+                
+                // Directly set wallpaper from cache
+                if (SetWallpaper(existingPath))
+                {
+                    _logger.LogInfo("Wallpaper set successfully from cache", new Dictionary<string, object>
+                    {
+                        { "ImageId", imageId },
+                        { "LocalPath", existingPath }
+                    });
+                    return true;
+                }
+            }
+
             // Step 1: Get image details from API
             ImageDetails imageDetails = await _apiClient.GetImageDetailsAsync(imageId, cancellationToken);
 

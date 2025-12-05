@@ -34,6 +34,7 @@ public class ApiClient : IApiClient
 
         // Configure timeout
         _httpClient.Timeout = TimeSpan.FromSeconds(configService.Settings.ApiTimeoutSeconds);
+        _httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("WallpaperChanger/1.0");
 
         // Configure retry policy with exponential backoff
         _retryPolicy = Policy
@@ -44,7 +45,11 @@ public class ApiClient : IApiClient
                 retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)),
                 onRetry: (outcome, timespan, retryCount, context) =>
                 {
-                    _logger.LogWarning($"API request retry {retryCount} after {timespan.TotalSeconds}s delay");
+                    string reason = outcome.Exception != null 
+                        ? outcome.Exception.Message 
+                        : $"Status Code: {outcome.Result?.StatusCode}";
+                        
+                    _logger.LogWarning($"API request retry {retryCount} after {timespan.TotalSeconds}s delay. Reason: {reason}");
                 });
     }
 
@@ -62,6 +67,7 @@ public class ApiClient : IApiClient
         try
         {
             string apiUrl = string.Format(IMAGE_DETAILS_URL, imageId);
+
             _logger.LogInfo("Fetching image details from API", new Dictionary<string, object>
             {
                 { "ImageId", imageId },
@@ -164,6 +170,57 @@ public class ApiClient : IApiClient
             _logger.LogError("Unexpected error in GetImageDetailsAsync", ex);
             throw new WallpaperException(ErrorCode.Unknown, "An unexpected error occurred", ex)
                 .WithContext("ImageId", imageId);
+        }
+    }
+
+
+    /// <summary>
+    /// Gets a random image ID from the API.
+    /// </summary>
+    public async Task<string> GetRandomImageIdAsync(CancellationToken cancellationToken = default)
+    {
+        const string RANDOM_LIST_URL = API_BASE_URL + "images.json";
+        
+        try
+        {
+            _logger.LogInfo("Fetching random image list from API");
+
+            // Execute request with retry policy
+            HttpResponseMessage response = await _retryPolicy.ExecuteAsync(async () =>
+            {
+                return await _httpClient.GetAsync(RANDOM_LIST_URL, cancellationToken);
+            });
+
+            if (!response.IsSuccessStatusCode)
+            {
+                throw new WallpaperException(ErrorCode.ApiError, $"API returned status code: {response.StatusCode} when fetching random list");
+            }
+
+            string json = await response.Content.ReadAsStringAsync(cancellationToken);
+            
+            // Parse array of strings
+            var images = JsonSerializer.Deserialize<List<string>>(json);
+            
+            if (images == null || images.Count == 0)
+            {
+                throw new WallpaperException(ErrorCode.ApiError, "API returned empty image list");
+            }
+
+            // Pick random
+            var random = new Random();
+            string selectedFile = images[random.Next(images.Count)];
+            
+            // API expects the full filename including extension (e.g. "ID.jpg")
+            string imageId = selectedFile;
+
+            _logger.LogInfo($"Selected random image ID: {imageId}");
+            
+            return imageId;
+        }
+        catch (Exception ex)
+        {
+             _logger.LogError("Error getting random image ID", ex);
+             throw new WallpaperException(ErrorCode.NetworkError, "Failed to get random image from API", ex);
         }
     }
 }

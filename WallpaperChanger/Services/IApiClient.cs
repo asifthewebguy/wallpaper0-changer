@@ -14,4 +14,11 @@ public interface IApiClient
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>The image details.</returns>
     Task<ImageDetails> GetImageDetailsAsync(string imageId, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Gets a random image ID from the API.
+    /// </summary>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <returns>A random image ID string.</returns>
+    Task<string> GetRandomImageIdAsync(CancellationToken cancellationToken = default);
 }

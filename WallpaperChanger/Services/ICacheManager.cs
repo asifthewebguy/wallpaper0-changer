@@ -16,6 +16,13 @@ public interface ICacheManager
     string GetCachedImagePath(string imageId, string extension);
 
     /// <summary>
+    /// Gets the existing cached image path for a given image ID (searches all extensions).
+    /// </summary>
+    /// <param name="imageId">The image ID.</param>
+    /// <returns>The full path if found, otherwise null.</returns>
+    string? GetExistingCachedImagePath(string imageId);
+
+    /// <summary>
     /// Checks if an image is already cached.
     /// </summary>
     /// <param name="imageId">The image ID to check.</param>

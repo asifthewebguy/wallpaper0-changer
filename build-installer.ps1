@@ -2,7 +2,7 @@
 # This script builds the application and creates an Inno Setup installer
 
 param (
-    [string]$Version = "1.1.0",
+    [string]$Version = "1.2.0",
     [string]$Configuration = "Release",
     [switch]$SkipBuild = $false,
     [string]$InnoSetupPath = ""
@@ -101,7 +101,8 @@ if (-not $SkipBuild) {
 
     Write-ColorMessage "Build completed successfully!" "Green"
     Write-ColorMessage ""
-} else {
+}
+else {
     Write-ColorMessage "Skipping build (using existing publish folder)" "Yellow"
     Write-ColorMessage ""
 }
@@ -174,7 +175,8 @@ if (Test-Path $installerPath) {
         Write-ColorMessage "Launching installer..." "Yellow"
         Start-Process -FilePath $installerPath
     }
-} else {
+}
+else {
     Write-ColorMessage "ERROR: Installer file not found at expected location" "Red"
     Write-ColorMessage "Expected: $installerPath" "Yellow"
     exit 1

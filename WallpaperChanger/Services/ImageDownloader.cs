@@ -126,7 +126,7 @@ public class ImageDownloader : IImageDownloader
             // Save to cache
             string localPath = _cacheManager.GetCachedImagePath(imageId, extension);
             await File.WriteAllBytesAsync(localPath, imageData, cancellationToken);
-
+            
             _cacheManager.UpdateAccessTime(imageId);
 
             _logger.LogInfo("Image downloaded successfully", new Dictionary<string, object>

@@ -11,9 +11,9 @@ namespace WallpaperChanger.Services;
 /// </remarks>
 public class ValidationService : IValidationService
 {
-    private readonly string[] _allowedDomains = { "aiwp.me" };
-    // Updated to support alphanumeric IDs (letters, numbers, hyphens, underscores)
-    private static readonly Regex ImageIdRegex = new(@"^[a-zA-Z0-9_-]+$", RegexOptions.Compiled);
+    private readonly string[] _allowedDomains = { "aiwp.me", "drive.google.com", "googleusercontent.com" };
+    // Updated to support alphanumeric IDs (letters, numbers, hyphens, underscores, dots)
+    private static readonly Regex ImageIdRegex = new(@"^[a-zA-Z0-9_.-]+$", RegexOptions.Compiled);
     private static readonly Regex PathTraversalRegex = new(@"\.\.[/\\]", RegexOptions.Compiled);
 
     /// <summary>

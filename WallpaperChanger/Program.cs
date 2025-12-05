@@ -61,16 +61,17 @@ static class Program
                 _serviceProvider.GetRequiredService<IWallpaperService>(),
                 _serviceProvider.GetRequiredService<IValidationService>(),
                 _serviceProvider.GetRequiredService<IConfigurationService>(),
+                _serviceProvider.GetRequiredService<ICacheManager>(),
+                _serviceProvider.GetRequiredService<ISchedulerService>(),
                 _serviceProvider.GetRequiredService<IAppLogger>()
             )
             {
-                WindowState = FormWindowState.Minimized,
-                ShowInTaskbar = false
+                WindowState = FormWindowState.Normal,
+                ShowInTaskbar = true
             };
 
-            // Start the named pipe server
-            _pipeServerCts = new CancellationTokenSource();
-            Task.Run(() => StartNamedPipeServer(_pipeServerCts.Token));
+            // Start the file watcher for IPC
+            StartRequestWatcher();
 
             // Process command line arguments if any
             if (args.Length > 0)
@@ -82,7 +83,7 @@ static class Program
             Application.ApplicationExit += (sender, e) =>
             {
                 _logger?.LogInfo("Application exiting");
-                _pipeServerCts?.Cancel();
+                // _pipeServerCts?.Cancel(); // No longer needed
                 _mutex?.ReleaseMutex();
                 _mutex?.Dispose();
 
@@ -102,67 +103,75 @@ static class Program
         }
     }
 
-    private static async Task StartNamedPipeServer(CancellationToken cancellationToken)
+    private static void StartRequestWatcher()
     {
-        while (!cancellationToken.IsCancellationRequested)
+        try
         {
-            try
-            {
-                using (var pipeServer = new NamedPipeServerStream(PipeName, PipeDirection.In, 1, PipeTransmissionMode.Message))
-                {
-                    // Wait for a client to connect
-                    await pipeServer.WaitForConnectionAsync(cancellationToken);
+            string requestDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "WallpaperChanger", "Requests");
+            if (!Directory.Exists(requestDir)) Directory.CreateDirectory(requestDir);
 
-                    // Read the message
-                    using (var reader = new StreamReader(pipeServer))
+            // Clean up old requests
+            foreach (var file in Directory.GetFiles(requestDir))
+            {
+                try { File.Delete(file); } catch { }
+            }
+
+            var watcher = new FileSystemWatcher(requestDir, "*.req");
+            watcher.NotifyFilter = NotifyFilters.FileName | NotifyFilters.LastWrite;
+            watcher.Created += (s, e) => 
+            {
+                // Simple retry policy for reading the file (it might still be writing)
+                for (int i = 0; i < 5; i++)
+                {
+                    try
                     {
-                        string? message = await reader.ReadLineAsync(cancellationToken);
-                        if (!string.IsNullOrEmpty(message))
+                        if (File.Exists(e.FullPath))
                         {
-                            // Process the message on the UI thread
-                            if (_mainForm != null && !_mainForm.IsDisposed)
+                            string content = File.ReadAllText(e.FullPath);
+                            try { File.Delete(e.FullPath); } catch { } // Clean up immediately
+
+                            if (!string.IsNullOrWhiteSpace(content) && _mainForm != null && !_mainForm.IsDisposed)
                             {
-                                _mainForm.Invoke(() => _mainForm.ProcessCommandLineArgument(message));
+                                // MessageBox.Show($"File Signal Received: {content}", "Debug IPC File");
+                                _mainForm.BeginInvoke(() => _mainForm.ProcessCommandLineArgument(content));
                             }
+                            break;
                         }
                     }
+                    catch 
+                    { 
+                        Thread.Sleep(100); 
+                    }
                 }
-            }
-            catch (OperationCanceledException)
-            {
-                // Cancellation requested, exit the loop
-                break;
-            }
-            catch (Exception ex)
-            {
-                // Log the error and continue
-                _logger?.LogWarning("Named pipe server error", ex);
-                await Task.Delay(1000, cancellationToken); // Wait a bit before retrying
-            }
+            };
+            watcher.EnableRaisingEvents = true;
+            
+            // Keep reference to prevent GC
+            _requestWatcher = watcher; 
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"Failed to start file watcher: {ex.Message}");
         }
     }
+
+    private static FileSystemWatcher? _requestWatcher;
 
     private static void ForwardArgumentsToRunningInstance(string arg)
     {
         try
         {
-            using (var pipeClient = new NamedPipeClientStream(".", PipeName, PipeDirection.Out))
-            {
-                // Connect to the server with a timeout
-                pipeClient.Connect(5000); // 5 second timeout
+            string requestDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "WallpaperChanger", "Requests");
+            if (!Directory.Exists(requestDir)) Directory.CreateDirectory(requestDir);
 
-                // Send the message
-                using (var writer = new StreamWriter(pipeClient) { AutoFlush = true })
-                {
-                    writer.WriteLine(arg);
-                }
-            }
+            string filePath = Path.Combine(requestDir, $"{Guid.NewGuid()}.req");
+            File.WriteAllText(filePath, arg);
+            
+            // MessageBox.Show("Signal written to file.", "Debug IPC");
         }
         catch (Exception ex)
         {
-            // If we can't connect to the pipe, show an error message
-            MessageBox.Show($"Failed to communicate with the running instance: {ex.Message}",
-                "Wallpaper Changer", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            MessageBox.Show($"Failed to communicate with running instance: {ex.Message}");
         }
     }
 }

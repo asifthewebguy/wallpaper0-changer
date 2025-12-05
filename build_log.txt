@@ -1,0 +1,19 @@
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+E:\ag-projects\wallpaper0-changer\WallpaperChanger\Controls\HistoryControl.cs(23,12): warning CS8618: Non-nullable field '_listView' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the field as nullable. [E:\ag-projects\wallpaper0-changer\WallpaperChanger\WallpaperChanger.csproj]
+E:\ag-projects\wallpaper0-changer\WallpaperChanger\Controls\HistoryControl.cs(23,12): warning CS8618: Non-nullable field '_imageList' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the field as nullable. [E:\ag-projects\wallpaper0-changer\WallpaperChanger\WallpaperChanger.csproj]
+E:\ag-projects\wallpaper0-changer\WallpaperChanger\Controls\HistoryControl.cs(23,12): warning CS8618: Non-nullable field '_contextMenu' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the field as nullable. [E:\ag-projects\wallpaper0-changer\WallpaperChanger\WallpaperChanger.csproj]
+E:\ag-projects\wallpaper0-changer\WallpaperChanger\Services\SchedulerService.cs(74,24): error CS1061: 'IConfigurationService' does not contain a definition for 'SaveSettings' and no accessible extension method 'SaveSettings' accepting a first argument of type 'IConfigurationService' could be found (are you missing a using directive or an assembly reference?) [E:\ag-projects\wallpaper0-changer\WallpaperChanger\WallpaperChanger.csproj]
+E:\ag-projects\wallpaper0-changer\WallpaperChanger\Program.cs(15,45): warning CS0169: The field 'Program._pipeServerCts' is never used [E:\ag-projects\wallpaper0-changer\WallpaperChanger\WallpaperChanger.csproj]
+
+Build FAILED.
+
+E:\ag-projects\wallpaper0-changer\WallpaperChanger\Controls\HistoryControl.cs(23,12): warning CS8618: Non-nullable field '_listView' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the field as nullable. [E:\ag-projects\wallpaper0-changer\WallpaperChanger\WallpaperChanger.csproj]
+E:\ag-projects\wallpaper0-changer\WallpaperChanger\Controls\HistoryControl.cs(23,12): warning CS8618: Non-nullable field '_imageList' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the field as nullable. [E:\ag-projects\wallpaper0-changer\WallpaperChanger\WallpaperChanger.csproj]
+E:\ag-projects\wallpaper0-changer\WallpaperChanger\Controls\HistoryControl.cs(23,12): warning CS8618: Non-nullable field '_contextMenu' must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring the field as nullable. [E:\ag-projects\wallpaper0-changer\WallpaperChanger\WallpaperChanger.csproj]
+E:\ag-projects\wallpaper0-changer\WallpaperChanger\Program.cs(15,45): warning CS0169: The field 'Program._pipeServerCts' is never used [E:\ag-projects\wallpaper0-changer\WallpaperChanger\WallpaperChanger.csproj]
+E:\ag-projects\wallpaper0-changer\WallpaperChanger\Services\SchedulerService.cs(74,24): error CS1061: 'IConfigurationService' does not contain a definition for 'SaveSettings' and no accessible extension method 'SaveSettings' accepting a first argument of type 'IConfigurationService' could be found (are you missing a using directive or an assembly reference?) [E:\ag-projects\wallpaper0-changer\WallpaperChanger\WallpaperChanger.csproj]
+    4 Warning(s)
+    1 Error(s)
+
+Time Elapsed 00:00:01.25
