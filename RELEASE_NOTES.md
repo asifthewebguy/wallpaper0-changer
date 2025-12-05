@@ -1,4 +1,4 @@
-# Wallpaper Changer v1.1.3 - Release Notes
+# Wallpaper Changer v1.2.2 - Release Notes
 
 ## Overview
 
