@@ -6,6 +6,9 @@ using WallpaperChanger.Services;
 
 namespace WallpaperChanger.Controls;
 
+/// <summary>
+/// Control for configuring scheduled wallpaper rotations.
+/// </summary>
 public class ScheduleControl : UserControl
 {
     private readonly ISchedulerService _schedulerService;
@@ -31,6 +34,9 @@ public class ScheduleControl : UserControl
         ("24 Hours", 1440)
     };
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="ScheduleControl"/> class.
+    /// </summary>
     public ScheduleControl(ISchedulerService schedulerService, IConfigurationService configService)
     {
         _schedulerService = schedulerService;

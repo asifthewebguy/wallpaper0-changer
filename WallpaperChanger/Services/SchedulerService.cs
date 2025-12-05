@@ -19,8 +19,14 @@ public class SchedulerService : ISchedulerService, IDisposable
     private DateTime? _nextRotationTime;
     private readonly Random _random = new();
 
+    /// <summary>
+    /// Event raised when the next rotation time changes.
+    /// </summary>
     public event EventHandler<DateTime?>? NextRotationChanged;
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="SchedulerService"/> class.
+    /// </summary>
     public SchedulerService(
         IConfigurationService configService,
         ICacheManager cacheManager,
@@ -35,6 +41,9 @@ public class SchedulerService : ISchedulerService, IDisposable
         _logger = logger;
     }
 
+    /// <summary>
+    /// Starts the scheduler using the current configuration.
+    /// </summary>
     public void Start()
     {
         Stop(); // Ensure no duplicates
@@ -61,6 +70,9 @@ public class SchedulerService : ISchedulerService, IDisposable
         _logger.LogInfo($"Scheduler started. Next rotation at: {_nextRotationTime}");
     }
 
+    /// <summary>
+    /// Stops the scheduler.
+    /// </summary>
     public void Stop()
     {
         _timer?.Stop();
@@ -70,6 +82,9 @@ public class SchedulerService : ISchedulerService, IDisposable
         NextRotationChanged?.Invoke(this, null);
     }
 
+    /// <summary>
+    /// Updates the scheduler configuration.
+    /// </summary>
     public async Task UpdateConfigurationAsync(bool enabled, int intervalMinutes, RotationSource source)
     {
         _configService.Settings.IsSchedulerEnabled = enabled;
@@ -149,12 +164,18 @@ public class SchedulerService : ISchedulerService, IDisposable
         }
     }
 
+    /// <summary>
+    /// Forces an immediate wallpaper rotation (if valid images exist).
+    /// </summary>
     public async Task ForceRotationAsync(RotationSource? source = null)
     {
         _logger.LogInfo($"Manual rotation triggered. Override Source: {source?.ToString() ?? "None"}");
         await RotateWallpaperAsync(source);
     }
 
+    /// <summary>
+    /// Disposes the scheduler resources.
+    /// </summary>
     public void Dispose()
     {
         Stop();

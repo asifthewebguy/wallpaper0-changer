@@ -10,16 +10,27 @@ using WallpaperChanger.Services;
 
 namespace WallpaperChanger.Controls;
 
+/// <summary>
+/// Control for displaying and managing wallpaper history.
+/// </summary>
 public class HistoryControl : UserControl
 {
-    private ListView _listView;
-    private ImageList _imageList;
-    private ContextMenuStrip _contextMenu;
+    private ListView _listView = null!;
+    private ImageList _imageList = null!;
+    private ContextMenuStrip _contextMenu = null!;
     private readonly ICacheManager _cacheManager;
     private readonly IAppLogger _logger;
     
+    /// <summary>
+    /// Event raised when a wallpaper is requested from the history.
+    /// </summary>
     public event EventHandler<string>? WallpaperRequested;
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="HistoryControl"/> class.
+    /// </summary>
+    /// <param name="cacheManager">The cache manager service.</param>
+    /// <param name="logger">The application logger.</param>
     public HistoryControl(ICacheManager cacheManager, IAppLogger logger)
     {
         _cacheManager = cacheManager;
@@ -68,6 +79,9 @@ public class HistoryControl : UserControl
         _contextMenu.Items.Add(deleteItem);
     }
 
+    /// <summary>
+    /// Refreshes the history list from the cache.
+    /// </summary>
     public async Task RefreshHistoryAsync()
     {
         try

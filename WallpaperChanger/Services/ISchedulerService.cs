@@ -20,6 +20,7 @@ public interface ISchedulerService
     /// <summary>
     /// Updates the scheduler configuration.
     /// </summary>
+    /// <param name="enabled">Whether the scheduler is enabled.</param>
     /// <param name="intervalMinutes">The interval in minutes.</param>
     /// <param name="source">The source of the wallpaper.</param>
     Task UpdateConfigurationAsync(bool enabled, int intervalMinutes, RotationSource source);

@@ -19,6 +19,9 @@ public partial class Form1 : Form
     private NotifyIcon _notifyIcon = null!;
     private readonly ISchedulerService _schedulerService;
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="Form1"/> class.
+    /// </summary>
     public Form1(
         IWallpaperService wallpaperService,
         IValidationService validationService,
@@ -152,6 +155,10 @@ public partial class Form1 : Form
         }
     }
 
+    /// <summary>
+    /// Raises the <see cref="E:System.Windows.Forms.Form.FormClosing" /> event.
+    /// </summary>
+    /// <param name="e">A <see cref="T:System.Windows.Forms.FormClosingEventArgs" /> that contains the event data.</param>
     protected override void OnFormClosing(FormClosingEventArgs e)
     {
         if (e.CloseReason == CloseReason.UserClosing)

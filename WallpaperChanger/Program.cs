@@ -12,7 +12,6 @@ static class Program
     private static Mutex? _mutex;
     private static readonly string MutexName = "WallpaperChangerMutex";
     private static Form1? _mainForm;
-    private static CancellationTokenSource? _pipeServerCts;
     private static IServiceProvider? _serviceProvider;
     private static IAppLogger? _logger;
 
