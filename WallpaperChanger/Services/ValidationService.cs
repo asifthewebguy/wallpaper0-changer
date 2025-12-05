@@ -12,7 +12,8 @@ namespace WallpaperChanger.Services;
 public class ValidationService : IValidationService
 {
     private readonly string[] _allowedDomains = { "aiwp.me" };
-    private static readonly Regex ImageIdRegex = new(@"^[0-9]+$", RegexOptions.Compiled);
+    // Updated to support alphanumeric IDs (letters, numbers, hyphens, underscores)
+    private static readonly Regex ImageIdRegex = new(@"^[a-zA-Z0-9_-]+$", RegexOptions.Compiled);
     private static readonly Regex PathTraversalRegex = new(@"\.\.[/\\]", RegexOptions.Compiled);
 
     /// <summary>
@@ -28,15 +29,16 @@ public class ValidationService : IValidationService
     /// <remarks>
     /// Valid image IDs must be:
     /// - Non-null and non-whitespace
-    /// - Between 1 and 10 characters long
-    /// - Contain only numeric digits
+    /// - Between 1 and 50 characters long
+    /// - Contain only alphanumeric characters, hyphens, or underscores
     /// </remarks>
     public bool IsValidImageId(string imageId)
     {
         if (string.IsNullOrWhiteSpace(imageId))
             return false;
 
-        if (imageId.Length > 10 || imageId.Length == 0)
+        // Increased limit to 50 to support longer alphanumeric IDs
+        if (imageId.Length > 50 || imageId.Length == 0)
             return false;
 
         return ImageIdRegex.IsMatch(imageId);

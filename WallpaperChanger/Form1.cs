@@ -100,7 +100,7 @@ public partial class Form1 : Form
 
             string imageId = string.Empty;
 
-            // Parse the URL (format: wallpaper0-changer:image_id)
+            // Parse the URL (format: wallpaper0-changer:image_id or wallpaper0-changer:image_id.jpg)
             if (url.StartsWith("wallpaper0-changer:"))
             {
                 imageId = url.Substring("wallpaper0-changer:".Length);
@@ -121,11 +121,26 @@ public partial class Form1 : Form
                 return;
             }
 
+            // Strip file extension if present (handles .jpg, .png, .jpeg, etc.)
+            if (imageId.Contains('.'))
+            {
+                int dotIndex = imageId.LastIndexOf('.');
+                string extension = imageId.Substring(dotIndex).ToLowerInvariant();
+
+                // Only strip if it's a common image extension
+                if (extension == ".jpg" || extension == ".jpeg" || extension == ".png" ||
+                    extension == ".bmp" || extension == ".gif" || extension == ".webp")
+                {
+                    imageId = imageId.Substring(0, dotIndex);
+                    _logger.LogDebug($"Stripped file extension '{extension}' from image ID");
+                }
+            }
+
             // Validate the image ID before processing
             if (!_validationService.IsValidImageId(imageId))
             {
                 ShowNotification("Error", $"Invalid wallpaper ID: {imageId}. Please check the link and try again.");
-                _logger.LogWarning("Invalid image ID", null);
+                _logger.LogWarning($"Invalid image ID after parsing: {imageId}", null);
                 return;
             }
 

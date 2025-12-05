@@ -42,19 +42,19 @@ public class ValidationServiceTests
     }
 
     [TestMethod]
-    public void IsValidImageId_WithNonNumericCharacters_ReturnsFalse()
+    public void IsValidImageId_WithInvalidCharacters_ReturnsFalse()
     {
-        // Arrange
+        // Arrange - Test IDs with truly invalid characters (not alphanumeric, hyphen, or underscore)
         var invalidIds = new[]
         {
-            "abc",
-            "123abc",
-            "12.34",
-            "12-34",
-            "12_34",
-            "invalid!@#",
-            "12 34",
-            "12\n34"
+            "12.34",      // Period not allowed
+            "invalid!@#", // Special characters not allowed
+            "12 34",      // Spaces not allowed
+            "12\n34",     // Newlines not allowed
+            "test/path",  // Slashes not allowed
+            "a\\b",       // Backslashes not allowed
+            "id<>",       // Angle brackets not allowed
+            "id|pipe"     // Pipes not allowed
         };
 
         // Act & Assert
@@ -65,16 +65,38 @@ public class ValidationServiceTests
     }
 
     [TestMethod]
+    public void IsValidImageId_WithAlphanumericCharacters_ReturnsTrue()
+    {
+        // Arrange - Test valid alphanumeric IDs (now allowed)
+        var validIds = new[]
+        {
+            "abc",
+            "123abc",
+            "ABC123",
+            "HNVOO3GJH7",  // Real example from aiwp.me
+            "image-123",   // Hyphens allowed
+            "image_456",   // Underscores allowed
+            "Test-Image_1"
+        };
+
+        // Act & Assert
+        foreach (var id in validIds)
+        {
+            _validationService.IsValidImageId(id).Should().BeTrue($"'{id}' should be valid");
+        }
+    }
+
+    [TestMethod]
     public void IsValidImageId_WithTooLongId_ReturnsFalse()
     {
-        // Arrange
-        var tooLongId = "12345678901"; // 11 digits
+        // Arrange - Max length is now 50 characters
+        var tooLongId = new string('a', 51); // 51 characters
 
         // Act
         var result = _validationService.IsValidImageId(tooLongId);
 
         // Assert
-        result.Should().BeFalse("Image IDs longer than 10 digits should be rejected");
+        result.Should().BeFalse("Image IDs longer than 50 characters should be rejected");
     }
 
     [TestMethod]
