@@ -24,7 +24,8 @@ bld/
 *.dbproj.schemaview
 *.jfm
 *.pfx
-*.publishsettings
+*.cer
+*.pem
 
 # ReSharper
 _ReSharper*/
