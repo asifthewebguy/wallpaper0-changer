@@ -1,10 +1,10 @@
-# Wallpaper Changer v1.2.2 - Release Notes
+# Wallpaper Changer v1.2.3 - Release Notes
 
 ## Overview
 
 Wallpaper Changer is a Windows application that changes desktop wallpapers using images from aiwp.me via a custom URL protocol. This release introduces a professional Inno Setup installer and major improvements to the installation experience.
 
-## What's New in v1.2.2
+## What's New in v1.2.3
 
 ### 🚀 New Features
 - **Minimize to Tray**: Application now keeps running in the background. Right-click the tray icon to exit or restore.
@@ -31,7 +31,7 @@ Wallpaper Changer is a Windows application that changes desktop wallpapers using
 
 ### Windows Installer (Recommended)
 
-1. Download `WallpaperChanger-Setup-v1.2.2.exe`
+1. Download `WallpaperChanger-Setup-v1.2.3.exe`
 2. Run the installer and follow the setup wizard
 3. Choose installation options (desktop icon, auto-start, etc.)
 4. Click Install

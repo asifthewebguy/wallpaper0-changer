@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Package
+  xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10"
+  xmlns:mp="http://schemas.microsoft.com/appx/2014/phone/manifest"
+  xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10"
+  xmlns:desktop="http://schemas.microsoft.com/appx/manifest/desktop/windows10"
+  xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities"
+  IgnorableNamespaces="uap mp desktop rescap">
+
+  <Identity
+    Name="ATWG.WallpaperChanger"
+    Publisher="CN=FC7020DE-37E2-458E-998A-41854C4460C8"
+    Version="1.2.3.0" />
+
+  <mp:PhoneIdentity PhoneProductId="8F9A3B2C-1D5E-4F6A-9B2C-3D4E5F6A7B8C" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
+
+  <Properties>
+    <DisplayName>Wallpaper Changer</DisplayName>
+    <PublisherDisplayName>ATWG</PublisherDisplayName>
+    <Logo>Assets\StoreLogo.png</Logo>
+  </Properties>
+
+  <Dependencies>
+    <TargetDeviceFamily Name="Windows.Desktop" MinVersion="10.0.17763.0" MaxVersionTested="10.0.22621.0" />
+  </Dependencies>
+
+  <Resources>
+    <Resource Language="en-us"/>
+  </Resources>
+
+  <Applications>
+    <Application Id="App"
+      Executable="WallpaperChanger.exe"
+      EntryPoint="Windows.FullTrustApplication">
+      <uap:VisualElements
+        DisplayName="Wallpaper Changer"
+        Description="Desktop wallpaper changer with web protocol support"
+        BackgroundColor="transparent"
+        Square150x150Logo="Assets\Square150x150Logo.png"
+        Square44x44Logo="Assets\Square44x44Logo.png">
+        <uap:DefaultTile Wide310x150Logo="Assets\Wide310x150Logo.png" />
+      </uap:VisualElements>
+      <Extensions>
+        <!-- Registers the wallpaper0-changer:// protocol — replaces registry writes in the Inno Setup script -->
+        <uap:Extension Category="windows.protocol">
+          <uap:Protocol Name="wallpaper0-changer">
+            <uap:DisplayName>Wallpaper Changer Protocol</uap:DisplayName>
+          </uap:Protocol>
+        </uap:Extension>
+        <!-- Startup task — replaces the {userstartup} shortcut in the Inno Setup script -->
+        <desktop:Extension Category="windows.startupTask" Executable="WallpaperChanger.exe" EntryPoint="Windows.FullTrustApplication">
+          <desktop:StartupTask TaskId="WallpaperChangerStartup" Enabled="false" DisplayName="Wallpaper Changer" />
+        </desktop:Extension>
+      </Extensions>
+    </Application>
+  </Applications>
+
+  <Capabilities>
+    <!-- Required for WinForms / Win32 desktop apps in MSIX -->
+    <rescap:Capability Name="runFullTrust" />
+  </Capabilities>
+</Package>
